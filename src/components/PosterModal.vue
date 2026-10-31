@@ -5,13 +5,13 @@
         <div class="poster-head">
           <div class="poster-titles">
             <span class="poster-eyebrow">S H A R E</span>
-            <h3>今日关心卡</h3>
+            <h3>{{ letter ? '这封信' : '今日关心卡' }}</h3>
           </div>
           <button type="button" class="poster-close" aria-label="关闭" @click="$emit('close')">✕</button>
         </div>
 
         <div class="poster-preview">
-          <img v-if="dataUrl" :src="dataUrl" alt="Dear Weather 分享卡" />
+          <img v-if="dataUrl" :src="dataUrl" :alt="letter ? 'Dear Weather 信件图片' : 'Dear Weather 分享卡'" />
           <div v-else class="poster-loading">
             <span class="loading-spark">✦</span>
             正在写这张卡片…
@@ -35,6 +35,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import {
+  buildLetterPoster,
   buildPoster,
   posterDataUrl,
   savePoster,
@@ -47,7 +48,8 @@ const props = defineProps({
   her: { type: Object, default: null },
   settings: { type: Object, required: true },
   event: { type: Object, default: null },
-  phrase: { type: String, default: '' }
+  phrase: { type: String, default: '' },
+  letter: { type: Object, default: null }
 })
 
 const emit = defineEmits(['close', 'notice'])
@@ -73,10 +75,19 @@ const fileName = computed(() => {
   const stamp = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(
     date.getDate()
   ).padStart(2, '0')}`
-  return `dear-weather-${stamp}.png`
+  return `dear-weather-${props.letter ? 'letter-' : ''}${stamp}.png`
 })
 
 function build() {
+  if (props.letter) {
+    canvas.value = buildLetterPoster({
+      letter: props.letter,
+      settings: props.settings,
+      siteUrl: siteUrl.value
+    })
+    dataUrl.value = posterDataUrl(canvas.value)
+    return
+  }
   if (!props.me || !props.her) return
   canvas.value = buildPoster({
     me: props.me,
@@ -97,7 +108,11 @@ async function save() {
 
 async function share() {
   if (!canvas.value) return
-  const result = await sharePoster(canvas.value, fileName.value)
+  const result = await sharePoster(
+    canvas.value,
+    fileName.value,
+    props.letter ? '写给你的一封信。' : '把今天的天气，替我告诉你。'
+  )
   if (result === 'shared') emit('notice', '已打开系统分享')
   if (result === 'downloaded') emit('notice', '这个浏览器不支持直接分享，图片已保存')
   if (result === 'failed') emit('notice', '生成图片失败，再试一次')
@@ -111,7 +126,13 @@ watch(
 )
 
 watch(
-  () => [props.event && props.event.key, props.phrase, props.me && props.me.updatedAt, props.her && props.her.updatedAt],
+  () => [
+    props.event && props.event.key,
+    props.phrase,
+    props.me && props.me.updatedAt,
+    props.her && props.her.updatedAt,
+    props.letter && (props.letter.id || props.letter.body)
+  ],
   () => {
     if (props.open) build()
   }

@@ -175,6 +175,7 @@
       :person-name="meName"
       @close="activeLetter = null"
       @edit="editLetter"
+      @share="openLetterPoster"
     />
 
     <SettingsSheet
@@ -187,6 +188,7 @@
       @save="saveSettingsFromSheet"
       @save-silent="saveSettingsSilently"
       @clear="clearData"
+      @preview="previewLetter"
     />
 
     <PosterModal
@@ -196,7 +198,8 @@
       :settings="settings"
       :event="posterEvent"
       :phrase="posterEvent ? phraseFor(posterEvent) : ''"
-      @close="posterOpen = false"
+      :letter="posterLetter"
+      @close="closePoster"
       @notice="showToast"
     />
 
@@ -279,6 +282,7 @@ const popupEvent = ref(null)
 const activeLetter = ref(null)
 const posterOpen = ref(false)
 const posterEvent = ref(null)
+const posterLetter = ref(null)
 
 const settingsOpen = ref(false)
 const settingsTab = ref('cities')
@@ -522,6 +526,12 @@ function openEventLetter(event) {
   openLetter(letter)
 }
 
+function previewLetter(letter) {
+  if (!letter) return
+  settingsOpen.value = false
+  activeLetter.value = letter
+}
+
 function openLetter(letter) {
   if (!letter) return
   const stamp = Date.now()
@@ -574,8 +584,23 @@ function openPoster(event) {
     showToast('还没有可以生成分享图的关心')
     return
   }
+  posterLetter.value = null
   popupEvent.value = null
   posterOpen.value = true
+}
+
+function openLetterPoster(letter) {
+  if (!letter) return
+  activeLetter.value = null
+  posterEvent.value = null
+  posterLetter.value = letter
+  posterOpen.value = true
+}
+
+function closePoster() {
+  posterOpen.value = false
+  posterEvent.value = null
+  posterLetter.value = null
 }
 
 /* ------------------------------------------------------------------ */

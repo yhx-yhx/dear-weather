@@ -209,6 +209,7 @@
                 <span>写给对方的信</span>
                 <button type="button" class="inline-link" @click="newLetter">写一封</button>
               </div>
+              <p v-if="notice" class="sheet-notice">{{ notice }}</p>
 
               <div v-if="draft.letters.length" class="letter-list">
                 <div v-for="letter in draft.letters" :key="letter.id" class="letter-row">
@@ -216,6 +217,7 @@
                     <b>{{ letter.title || '未命名' }}</b>
                     <span>{{ triggerLabel(letter, draft) }}</span>
                   </div>
+                  <button type="button" class="mini-btn" @click="previewLetter(letter)">拆开</button>
                   <button type="button" class="mini-btn" @click="editLetter(letter)">编辑</button>
                   <button
                     type="button"
@@ -236,8 +238,9 @@
             <template v-else>
               <div class="panel-title">
                 <span>{{ editingLetter.id ? '编辑信件' : '写一封新信' }}</span>
-                <button type="button" class="inline-link" @click="editingLetter = null">返回</button>
+                <button type="button" class="inline-link" @click="cancelLetterEdit">返回</button>
               </div>
+              <p v-if="notice" class="sheet-notice">{{ notice }}</p>
 
               <label class="field">
                 <span>标题</span>
@@ -279,7 +282,6 @@
                 ></textarea>
               </label>
 
-              <button type="button" class="save-letter" @click="saveLetter">收好这封信</button>
             </template>
           </section>
 
@@ -408,8 +410,14 @@
         </div>
 
         <div class="sheet-foot">
-          <button type="button" class="foot-ghost" @click="resetDraft">撤销修改</button>
-          <button type="button" class="foot-save" @click="save">保存设置</button>
+          <template v-if="tab === 'letters' && editingLetter">
+            <button type="button" class="foot-ghost" @click="cancelLetterEdit">返回</button>
+            <button type="button" class="foot-save" @click="saveLetter">收好这封信</button>
+          </template>
+          <template v-else>
+            <button type="button" class="foot-ghost" @click="resetDraft">撤销修改</button>
+            <button type="button" class="foot-save" @click="save">保存设置</button>
+          </template>
         </div>
       </div>
     </div>
@@ -448,7 +456,7 @@ const props = defineProps({
   startNewLetter: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['close', 'save', 'save-silent', 'clear'])
+const emit = defineEmits(['close', 'save', 'save-silent', 'clear', 'preview'])
 
 const tabs = [
   { key: 'cities', label: '城市' },
@@ -711,17 +719,38 @@ function editLetter(letter) {
   })
 }
 
+function cancelLetterEdit() {
+  editingLetter.value = null
+  notice.value = ''
+  nextTick(() => {
+    if (sheetBody.value) sheetBody.value.scrollTop = 0
+  })
+}
+
 function saveLetter() {
   const letter = editingLetter.value
   if (!letter) return
-  if (!letter.title.trim()) {
+
+  const title = String(letter.title || '').trim()
+  const body = String(letter.body || '').trim()
+  if (!title) {
     notice.value = '给这封信起个标题吧'
+    nextTick(() => {
+      if (sheetBody.value) sheetBody.value.scrollTop = 0
+    })
     return
   }
-  if (!letter.body.trim()) {
+  if (!body) {
     notice.value = '信里还没有内容'
+    nextTick(() => {
+      if (sheetBody.value) sheetBody.value.scrollTop = 0
+    })
     return
   }
+
+  letter.title = title
+  letter.body = body
+
   if (!letter.id) {
     letter.id = `letter-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
     draft.value.letters.push(letter)
@@ -730,7 +759,16 @@ function saveLetter() {
     if (index >= 0) draft.value.letters[index] = letter
   }
   editingLetter.value = null
-  notice.value = '信已经收好，等一个合适的日子'
+  notice.value = '信已经收好，可以立即拆开或生成图片'
+  emit('save-silent', clone(draft.value))
+  nextTick(() => {
+    if (sheetBody.value) sheetBody.value.scrollTop = 0
+  })
+}
+
+function previewLetter(letter) {
+  if (!letter) return
+  emit('preview', clone(letter))
 }
 
 function removeLetter(id) {
@@ -739,6 +777,7 @@ function removeLetter(id) {
     deletingId.value = ''
     clearTimeout(deleteTimer)
     notice.value = '已删除这封信'
+    emit('save-silent', clone(draft.value))
     return
   }
   deletingId.value = id
@@ -1247,18 +1286,6 @@ onBeforeUnmount(() => clearTimeout(deleteTimer))
 }
 .hint.push-ok {
   color: #4f8a6a;
-}
-.save-letter {
-  width: 100%;
-  margin-top: 8px;
-  padding: 12px;
-  border-radius: 13px;
-  background: linear-gradient(135deg, #e9a3c0, #c9b2e8);
-  color: #fff;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  box-shadow: 0 12px 22px -16px rgba(201, 106, 146, 0.7);
 }
 .theme-grid {
   display: grid;

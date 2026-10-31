@@ -29,6 +29,9 @@
           <button type="button" class="letter-btn ghost" @click="$emit('edit', letter)">
             编辑这封信
           </button>
+          <button type="button" class="letter-btn share" @click="$emit('share', letter)">
+            生成图片
+          </button>
           <button type="button" class="letter-btn primary" @click="$emit('close')">
             收好
           </button>
@@ -47,7 +50,7 @@ const props = defineProps({
   personName: { type: String, default: '我' }
 })
 
-defineEmits(['close', 'edit'])
+defineEmits(['close', 'edit', 'share'])
 
 const lines = computed(() => {
   if (!props.letter || !props.letter.body) return ['这封信还没有写内容。']
@@ -186,6 +189,10 @@ const dateText = computed(() => {
   border: 1px solid rgba(255, 255, 255, 0.95);
   background: rgba(255, 255, 255, 0.6);
   color: #8b7c96;
+}
+.letter-btn.share {
+  background: linear-gradient(135deg, #f7d7e4, #f1e6f9);
+  color: #a85d7e;
 }
 .letter-btn.primary {
   background: linear-gradient(135deg, #e9a3c0, #c9b2e8);

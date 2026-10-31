@@ -464,6 +464,123 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
   return canvas
 }
 
+export function buildLetterPoster({ letter, settings, siteUrl }) {
+  const canvas = document.createElement('canvas')
+  canvas.width = W
+  canvas.height = H
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return canvas
+
+  const title = (letter && letter.title) || '一封信'
+  const body = (letter && letter.body) || ''
+  const meLabel = (settings.me && settings.me.name) || '我'
+  const tz =
+    settings.her && settings.her.city ? settings.her.city.tz : undefined
+  const stamp =
+    (letter && (letter.lastOpenedAt || letter.createdAt)) || Date.now()
+  const dateText = formatDateCN(new Date(stamp), tz)
+
+  const bg = ctx.createLinearGradient(0, 0, W, H)
+  bg.addColorStop(0, '#fffdf9')
+  bg.addColorStop(0.56, '#fdf8ef')
+  bg.addColorStop(1, '#fbf2e8')
+  ctx.fillStyle = bg
+  ctx.fillRect(0, 0, W, H)
+
+  const blush = ctx.createRadialGradient(900, 120, 20, 900, 120, 520)
+  blush.addColorStop(0, 'rgba(255, 224, 214, 0.55)')
+  blush.addColorStop(1, 'rgba(255, 224, 214, 0)')
+  ctx.fillStyle = blush
+  ctx.fillRect(0, 0, W, H)
+
+  drawGrain(ctx)
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.92)'
+  ctx.lineWidth = 2
+  roundRect(ctx, 38, 38, W - 76, H - 76, 34)
+  ctx.stroke()
+
+  drawBrand(ctx, 86, 78)
+  ctx.textAlign = 'left'
+  ctx.fillStyle = INK_SOFT
+  ctx.font = `600 22px ${FAMILY}`
+  ctx.fillText('D E A R   W E A T H E R', 140, 98)
+  ctx.textAlign = 'right'
+  ctx.font = `400 24px ${FAMILY}`
+  ctx.fillText(dateText, W - 86, 98)
+
+  ctx.textAlign = 'left'
+  ctx.fillStyle = HER
+  ctx.font = `600 18px ${FAMILY}`
+  ctx.fillText('A   L E T T E R   F O R   Y O U', 90, 210)
+
+  ctx.fillStyle = INK
+  ctx.font = `600 54px ${SERIF}`
+  ctx.fillText(fitText(ctx, title, W - 180), 86, 292)
+
+  ctx.strokeStyle = 'rgba(201, 163, 214, 0.35)'
+  ctx.lineWidth = 2
+  ctx.beginPath()
+  ctx.moveTo(90, 334)
+  ctx.lineTo(W - 90, 334)
+  ctx.stroke()
+
+  const maxWidth = W - 200
+  const paragraphs = String(body).split('\n')
+  let fontSize = 31
+  let lineHeight = 54
+  let lines = []
+
+  const layout = () => {
+    ctx.font = `400 ${fontSize}px ${SERIF}`
+    lines = []
+    paragraphs.forEach((paragraph) => {
+      if (!paragraph.trim()) {
+        lines.push('')
+        return
+      }
+      lines.push(...wrapLines(ctx, paragraph, maxWidth))
+    })
+  }
+
+  layout()
+  let maxLines = Math.floor((1150 - 390) / lineHeight)
+  if (lines.length > maxLines) {
+    fontSize = 27
+    lineHeight = 46
+    layout()
+    maxLines = Math.floor((1150 - 390) / lineHeight)
+  }
+  if (lines.length > maxLines) {
+    lines = lines.slice(0, maxLines)
+    lines[maxLines - 1] = `${lines[maxLines - 1]}…`
+  }
+
+  ctx.fillStyle = '#5c4b52'
+  ctx.font = `400 ${fontSize}px ${SERIF}`
+  lines.forEach((line, index) => {
+    ctx.fillText(line, 96, 390 + index * lineHeight)
+  })
+
+  ctx.textAlign = 'right'
+  ctx.fillStyle = INK_SOFT
+  ctx.font = `400 28px ${SERIF}`
+  ctx.fillText(`—— ${meLabel}`, W - 96, 1160)
+
+  ctx.textAlign = 'left'
+  ctx.fillStyle = INK_SOFT
+  ctx.font = `400 20px ${FAMILY}`
+  ctx.fillText('dear-weather · 把今天的天气，替我告诉你', 90, 1350)
+
+  drawQrCode(ctx, siteUrl, 830, 1240, 110)
+  ctx.textAlign = 'right'
+  ctx.fillStyle = INK_SOFT
+  ctx.font = `400 18px ${FAMILY}`
+  ctx.fillText('扫码打开 Dear Weather', 792, 1388)
+
+  return canvas
+}
+
 export function canvasToBlob(canvas) {
   return new Promise((resolve) => {
     canvas.toBlob((blob) => resolve(blob), 'image/png', 1)
@@ -484,7 +601,7 @@ export async function savePoster(canvas, filename = 'dear-weather.png') {
   return true
 }
 
-export async function sharePoster(canvas, filename = 'dear-weather.png') {
+export async function sharePoster(canvas, filename = 'dear-weather.png', text = '把今天的天气，替我告诉你。') {
   const blob = await canvasToBlob(canvas)
   if (!blob) return 'failed'
   const file = new File([blob], filename, { type: 'image/png' })
@@ -493,7 +610,7 @@ export async function sharePoster(canvas, filename = 'dear-weather.png') {
       await navigator.share({
         files: [file],
         title: 'Dear Weather',
-        text: '把今天的天气，替我告诉你。'
+        text
       })
       return 'shared'
     } catch (error) {
