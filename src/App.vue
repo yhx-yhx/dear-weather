@@ -1,5 +1,5 @@
 <template>
-  <div class="app-shell">
+  <div class="app-shell" :class="{ 'no-motion': !motion }">
     <div class="sky-frame">
       <SkyBackground :theme="theme" />
     </div>
@@ -568,13 +568,16 @@ function saveSettingsFromSheet(next) {
   const cityChanged =
     (prev.me.city && prev.me.city.id) !== (next.me.city && next.me.city.id) ||
     (prev.her.city && prev.her.city.id) !== (next.her.city && next.her.city.id)
+  const keyChanged =
+    String(prev.apiKey || '') !== String(next.apiKey || '') ||
+    String(prev.apiHost || '') !== String(next.apiHost || '')
 
   settings.value = mergeSettings(next)
   saveSettings(settings.value)
   closeSettings()
   rebuildEvents()
 
-  if (cityChanged) {
+  if (cityChanged || keyChanged) {
     cache.value = null
     loadAll(true)
   }

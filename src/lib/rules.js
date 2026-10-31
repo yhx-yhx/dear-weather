@@ -391,8 +391,12 @@ export function triggerLabel(letter, settings) {
       return '她那边下雨时拆开'
     case 'snow':
       return '她那边下雪时拆开'
-    case 'date':
-      return letter.date ? `${letter.date.replace('-', ' 月 ')} 日拆开` : '指定日期拆开'
+    case 'date': {
+      if (!letter.date) return '指定日期拆开'
+      const [month, day] = String(letter.date).split('-')
+      if (!month || !day) return '指定日期拆开'
+      return `${Number(month)} 月 ${Number(day)} 日拆开`
+    }
     case 'any':
     default:
       return '随时可以拆开'

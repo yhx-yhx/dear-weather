@@ -151,6 +151,7 @@ export function clearAll() {
       /* ignore */
     }
   })
+  clearPopupMarks()
 }
 
 export function clearPopupMarks() {

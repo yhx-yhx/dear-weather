@@ -17,7 +17,7 @@ export function latToY(lat, z) {
   )
 }
 
-export function fitZoom(a, b, width, height, padding = 46, maxZoom = 10, minZoom = 3) {
+export function fitZoom(a, b, width, height, padding = 46, maxZoom = 10, minZoom = 1) {
   for (let z = maxZoom; z >= minZoom; z -= 1) {
     const ax = lonToX(a.lon, z)
     const ay = latToY(a.lat, z)
@@ -41,7 +41,7 @@ export function tileUrl({ layer, x, y, z, key, sub = 0 }) {
 export function layoutMap(me, her, width, height, options = {}) {
   const padding = options.padding || 48
   const key = options.key || ''
-  const z = fitZoom(me, her, width, height, padding, options.maxZoom || 10, 3)
+  const z = fitZoom(me, her, width, height, padding, options.maxZoom || 10, options.minZoom || 1)
   const world = Math.pow(2, z)
 
   const ax = lonToX(me.lon, z)

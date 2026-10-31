@@ -1,6 +1,7 @@
 /* 分享卡：1080 × 1440，Canvas 本地绘制，不经过任何服务端 */
 
 import qrcode from 'qrcode-generator'
+import { weatherKind } from './icons'
 import {
   cityTitle,
   distanceKm,
@@ -297,7 +298,6 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
   const gap = Math.abs(meTemp - herTemp)
   const distance = distanceKm(me.city, her.city)
   const care = event || {}
-  const careKind = care.scene || 'daily'
   const careTitle = care.title || '今天也想知道她那边怎么样'
   const careDetail = care.detail || `${her.now.text || '天气'}，${herTemp}℃。`
   const carePhrase = phrase || '把今天的天气，替我告诉你。'
@@ -365,7 +365,7 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
     96,
     574
   )
-  drawGlyph(ctx, careKind === 'cold' ? 'cold' : careKind, 790, 300, 190, HER)
+  drawGlyph(ctx, weatherKind(her.now.icon, her.now.text), 790, 300, 168, HER)
 
   // 双城连接
   const lineY = 700
@@ -418,7 +418,7 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
     322,
     976
   )
-  drawGlyph(ctx, careKind === 'cold' ? 'cold' : careKind, 858, 842, 104, ME)
+  drawGlyph(ctx, weatherKind(me.now.icon, me.now.text), 858, 842, 104, ME)
 
   // 关心卡
   ctx.save()
@@ -455,11 +455,11 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
   ctx.font = `400 20px ${FAMILY}`
   ctx.fillText('dear-weather · 把今天的天气，替我告诉你', 90, 1362)
 
-  drawQrCode(ctx, siteUrl, 806, 1290, 118)
+  drawQrCode(ctx, siteUrl, 812, 1280, 92)
   ctx.textAlign = 'center'
   ctx.fillStyle = INK_SOFT
-  ctx.font = `400 18px ${FAMILY}`
-  ctx.fillText('扫码打开天气信使', 865, 1430)
+  ctx.font = `400 16px ${FAMILY}`
+  ctx.fillText('扫码打开天气信使', 858, 1392)
 
   return canvas
 }
