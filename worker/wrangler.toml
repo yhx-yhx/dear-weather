@@ -17,7 +17,7 @@ QWEATHER_API_HOST = "devapi.qweather.com"
 # 然后把返回的 id 填到这里
 [[kv_namespaces]]
 binding = "SUBSCRIPTIONS"
-id = "00000000000000000000000000000000"
+id = "feababa9178e46e2a7713902bce91d0c"
 
 [observability]
 enabled = true
