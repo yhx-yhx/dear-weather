@@ -1,6 +1,6 @@
 /* Dear Weather Service Worker：让页面能离线打开，天气本身仍然实时请求。 */
 
-const VERSION = 'dear-weather-v1.0.6'
+const VERSION = 'dear-weather-v1.0.7'
 
 const CORE = [
   './',
@@ -53,7 +53,7 @@ self.addEventListener('fetch', (event) => {
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
+      fetch(request, { cache: 'no-store' })
         .then((response) => {
           const copy = response.clone()
           caches.open(VERSION).then((cache) => cache.put('./index.html', copy)).catch(() => {})
