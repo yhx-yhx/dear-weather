@@ -11,6 +11,7 @@ const KEYS = {
 
 const BUILT_IN_PUSH_URL = import.meta.env.VITE_PUSH_WORKER_URL || ''
 const BUILT_IN_PUSH_TOKEN = import.meta.env.VITE_PUSH_TOKEN || ''
+const LEGACY_PUSH_URLS = ['https://dear-weather-push.2045399856.workers.dev']
 
 export const DEFAULT_LAYOUT = ['her', 'map', 'me', 'care', 'letters', 'hourly', 'forecast']
 
@@ -82,6 +83,8 @@ export function mergeSettings(raw) {
     if (!layout.includes(key)) layout.push(key)
   })
 
+  const rawPushUrl = String(raw.pushUrl || '').replace(/\/+$/, '')
+
   return {
     ...base,
     ...raw,
@@ -89,7 +92,10 @@ export function mergeSettings(raw) {
     her: { ...base.her, ...(raw.her || {}) },
     thresholds: { ...base.thresholds, ...(raw.thresholds || {}) },
     layout,
-    pushUrl: raw.pushUrl || base.pushUrl,
+    pushUrl:
+      rawPushUrl && !LEGACY_PUSH_URLS.includes(rawPushUrl)
+        ? rawPushUrl
+        : base.pushUrl,
     pushToken: raw.pushToken || base.pushToken,
     phrases: raw.phrases && typeof raw.phrases === 'object' ? { ...raw.phrases } : {},
     letters: Array.isArray(raw.letters) ? raw.letters : []

@@ -2,6 +2,10 @@ name = "dear-weather-push"
 main = "src/index.js"
 compatibility_date = "2025-06-01"
 
+routes = [
+  { pattern = "push.yhx825.dpdns.org", custom_domain = true }
+]
+
 # 每天 23:30 UTC = 北京时间 07:30
 [triggers]
 crons = ["30 23 * * *"]
