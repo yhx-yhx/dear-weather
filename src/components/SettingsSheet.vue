@@ -130,6 +130,64 @@
             <p class="hint">换一句时，会从当前场景的短句里轮换。</p>
           </section>
 
+          <!-- 通知 -->
+          <section v-else-if="tab === 'notify'" class="panel">
+            <div class="panel-title"><span>她手机上的系统通知</span></div>
+            <p class="about-text">
+              在她手机上打开本站 → 添加到主屏幕 → 在这里开启。开启后，即使 App 关着，Cloudflare Worker 也会按她的天气推送系统通知。
+            </p>
+
+            <label class="field">
+              <span>Worker 地址</span>
+              <input
+                v-model="draft.pushUrl"
+                type="url"
+                autocomplete="off"
+                placeholder="https://dear-weather-push.xxx.workers.dev"
+              />
+            </label>
+            <label class="field">
+              <span>访问口令</span>
+              <input
+                v-model="draft.pushToken"
+                type="password"
+                autocomplete="off"
+                placeholder="Worker 的 PUSH_TOKEN"
+              />
+            </label>
+
+            <div class="push-status" :class="pushTone">
+              <b>{{ pushLabel }}</b>
+              <span>{{ pushDetail }}</span>
+            </div>
+
+            <div class="button-row">
+              <button type="button" class="soft-btn" :disabled="pushBusy" @click="enableNotifications">
+                {{ pushBusy ? '处理中…' : '开启通知' }}
+              </button>
+              <button
+                type="button"
+                class="soft-btn"
+                :disabled="pushBusy || !pushSubscribed"
+                @click="disableNotifications"
+              >
+                关闭通知
+              </button>
+            </div>
+            <button
+              type="button"
+              class="soft-btn wide"
+              :disabled="pushBusy || !pushSubscribed"
+              @click="testNotifications"
+            >
+              发送测试通知
+            </button>
+
+            <p v-if="pushError" class="hint push-error">{{ pushError }}</p>
+            <p v-else-if="pushNotice" class="hint push-ok">{{ pushNotice }}</p>
+            <p class="hint">只支持 HTTPS。iPhone 需要 iOS 16.4+，并且必须先“添加到主屏幕”。</p>
+          </section>
+
           <!-- 信件 -->
           <section v-else-if="tab === 'letters'" class="panel">
             <template v-if="!editingLetter">
@@ -266,7 +324,7 @@
           <!-- 关于 -->
           <section v-else class="panel">
             <div class="about-card">
-              <span class="about-mark">✉</span>
+              <span class="about-mark"><BrandMark /></span>
               <div>
                 <b>Dear Weather</b>
                 <p>把今天的天气，替我告诉你。</p>
@@ -307,12 +365,22 @@
 
 <script setup>
 import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import BrandMark from './BrandMark.vue'
 import CityPicker from './CityPicker.vue'
 import {
   DEFAULT_PHRASES,
   SCENE_META
 } from '../lib/phrases'
 import { triggerLabel } from '../lib/rules'
+import {
+  currentSubscription,
+  disablePush,
+  enablePush,
+  permissionState,
+  pushBlockReason,
+  pushSupported,
+  sendTestPush
+} from '../lib/push'
 import {
   exportSettings,
   importSettings
@@ -326,11 +394,12 @@ const props = defineProps({
   startNewLetter: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['close', 'save', 'clear'])
+const emit = defineEmits(['close', 'save', 'save-silent', 'clear'])
 
 const tabs = [
   { key: 'cities', label: '城市' },
   { key: 'care', label: '关心' },
+  { key: 'notify', label: '通知' },
   { key: 'letters', label: '信件' },
   { key: 'look', label: '外观' },
   { key: 'about', label: '关于' }
@@ -356,6 +425,15 @@ const editingLetter = ref(null)
 const deletingId = ref('')
 const notice = ref('')
 const fileInput = ref(null)
+
+const pushBusy = ref(false)
+const pushSubscribed = ref(false)
+const pushLabel = ref('未开启')
+const pushDetail = ref('设置好 Worker 地址和口令后点开启')
+const pushTone = ref('idle')
+const pushError = ref('')
+const pushNotice = ref('')
+
 let deleteTimer = null
 
 function clone(value) {
@@ -366,11 +444,116 @@ function clone(value) {
   }
 }
 
+async function refreshPushState() {
+  pushError.value = ''
+  pushNotice.value = ''
+
+  if (!pushSupported()) {
+    pushSubscribed.value = false
+    pushLabel.value = '这个浏览器不支持'
+    pushDetail.value = pushBlockReason() || '换一个浏览器试试'
+    pushTone.value = 'warn'
+    return
+  }
+
+  const permission = await permissionState()
+  if (permission === 'denied') {
+    pushSubscribed.value = false
+    pushLabel.value = '通知被浏览器拒绝'
+    pushDetail.value = '去浏览器设置里允许通知后再试'
+    pushTone.value = 'warn'
+    return
+  }
+
+  const subscription = await currentSubscription()
+  pushSubscribed.value = Boolean(subscription)
+  if (subscription) {
+    pushLabel.value = '已开启'
+    pushDetail.value = '这台设备会收到系统通知'
+    pushTone.value = 'ok'
+  } else {
+    pushLabel.value = '未开启'
+    pushDetail.value = '设置好 Worker 地址和口令后点开启'
+    pushTone.value = 'idle'
+  }
+}
+
+async function enableNotifications() {
+  pushBusy.value = true
+  pushError.value = ''
+  pushNotice.value = ''
+  try {
+    await enablePush({
+      workerUrl: draft.value.pushUrl,
+      token: draft.value.pushToken
+    })
+    pushSubscribed.value = true
+    pushLabel.value = '已开启'
+    pushDetail.value = '这台设备会收到系统通知'
+    pushTone.value = 'ok'
+    pushNotice.value = '系统通知已开启，可以发一条测试通知'
+    draft.value.pushUrl = String(draft.value.pushUrl || '')
+      .trim()
+      .replace(/\/+$/, '')
+    emit('save-silent', clone(draft.value))
+  } catch (error) {
+    pushTone.value = 'warn'
+    pushLabel.value = '开启失败'
+    pushDetail.value = '检查 Worker 地址和口令'
+    pushError.value = (error && error.message) || '开启失败，等会儿再试'
+  } finally {
+    pushBusy.value = false
+  }
+}
+
+async function disableNotifications() {
+  pushBusy.value = true
+  pushError.value = ''
+  pushNotice.value = ''
+  try {
+    await disablePush({
+      workerUrl: draft.value.pushUrl,
+      token: draft.value.pushToken
+    })
+    pushSubscribed.value = false
+    pushLabel.value = '未开启'
+    pushDetail.value = '这台设备不会再收到系统通知'
+    pushTone.value = 'idle'
+    pushNotice.value = '已关闭系统通知'
+    emit('save-silent', clone(draft.value))
+  } catch (error) {
+    pushError.value = (error && error.message) || '关闭失败，等会儿再试'
+  } finally {
+    pushBusy.value = false
+  }
+}
+
+async function testNotifications() {
+  pushBusy.value = true
+  pushError.value = ''
+  pushNotice.value = ''
+  try {
+    const result = await sendTestPush({
+      workerUrl: draft.value.pushUrl,
+      token: draft.value.pushToken
+    })
+    const count = Number(result && result.count) || 0
+    pushNotice.value =
+      count > 0 ? `已发送给 ${count} 台订阅设备` : '还没有订阅设备'
+  } catch (error) {
+    pushError.value = (error && error.message) || '发送失败，等会儿再试'
+  } finally {
+    pushBusy.value = false
+  }
+}
+
 function resetDraft() {
   draft.value = clone(props.settings)
   editingLetter.value = null
   deletingId.value = ''
   notice.value = ''
+  pushError.value = ''
+  pushNotice.value = ''
   loadPhrase()
 }
 
@@ -528,6 +711,7 @@ watch(
           if (found) editLetter(found)
         }
       }
+      if (tab.value === 'notify') refreshPushState()
       nextTick(() => {
         if (sheetBody.value) sheetBody.value.scrollTop = 0
       })
@@ -537,6 +721,7 @@ watch(
 
 watch(tab, (value) => {
   if (value !== 'letters') editingLetter.value = null
+  if (value === 'notify') refreshPushState()
   nextTick(() => {
     if (sheetBody.value) sheetBody.value.scrollTop = 0
   })
@@ -830,6 +1015,55 @@ onBeforeUnmount(() => clearTimeout(deleteTimer))
   font-weight: 600;
   color: #8b7c96;
 }
+.soft-btn:disabled {
+  opacity: 0.5;
+}
+.soft-btn.wide {
+  width: 100%;
+  margin-top: 7px;
+  padding: 11px;
+  font-size: 10.5px;
+}
+.push-status {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 10px 0 9px;
+  padding: 9px 11px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+}
+.push-status b {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #5b4c63;
+}
+.push-status span {
+  font-size: 9px;
+  line-height: 1.5;
+  color: #a896b2;
+}
+.push-status.ok {
+  background: rgba(238, 249, 242, 0.78);
+  border-color: rgba(190, 225, 205, 0.8);
+}
+.push-status.ok b {
+  color: #4f8a6a;
+}
+.push-status.warn {
+  background: rgba(255, 246, 238, 0.86);
+  border-color: rgba(240, 215, 190, 0.8);
+}
+.push-status.warn b {
+  color: #a8754b;
+}
+.hint.push-error {
+  color: #b25f6f;
+}
+.hint.push-ok {
+  color: #4f8a6a;
+}
 .save-letter {
   width: 100%;
   margin-top: 8px;
@@ -966,13 +1200,11 @@ onBeforeUnmount(() => clearTimeout(deleteTimer))
 .about-mark {
   width: 38px;
   height: 38px;
-  display: grid;
-  place-items: center;
+  display: block;
+  overflow: hidden;
   border-radius: 12px;
-  background: linear-gradient(135deg, #f7d7e4, #eee3f8);
-  font-size: 18px;
-  color: #b26791;
   flex: none;
+  box-shadow: 0 6px 14px -10px rgba(201, 106, 146, 0.5);
 }
 .about-card b {
   font-size: 11.5px;

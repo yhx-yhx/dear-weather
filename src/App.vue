@@ -167,6 +167,7 @@
       :start-new-letter="settingsNewLetter"
       @close="closeSettings"
       @save="saveSettingsFromSheet"
+      @save-silent="saveSettingsSilently"
       @clear="clearData"
     />
 
@@ -575,6 +576,12 @@ function saveSettingsFromSheet(next) {
     loadAll(true)
   }
   showToast('设置已保存')
+}
+
+function saveSettingsSilently(next) {
+  settings.value = mergeSettings(next)
+  saveSettings(settings.value)
+  rebuildEvents()
 }
 
 function finishWelcome({ me, her }) {

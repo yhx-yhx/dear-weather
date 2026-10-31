@@ -1,6 +1,6 @@
 /* Dear Weather Service Worker：让页面能离线打开，天气本身仍然实时请求。 */
 
-const VERSION = 'dear-weather-v1.0.2'
+const VERSION = 'dear-weather-v1.0.3'
 
 const CORE = [
   './',
@@ -82,5 +82,48 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => cached || Response.error())
     })
+  )
+})
+
+/* Web Push：Worker 在云端发来消息，即使页面没开着也能弹通知。 */
+self.addEventListener('push', (event) => {
+  let data = {}
+  try {
+    data = event.data ? event.data.json() : {}
+  } catch (e) {
+    data = { body: event.data ? event.data.text() : '' }
+  }
+
+  const title = data.title || 'Dear Weather'
+  const options = {
+    body: data.body || '她那边有新的天气变化。',
+    icon: './icon-192.png',
+    badge: './icon-192.png',
+    tag: 'dear-weather',
+    renotify: true,
+    data: { url: data.url || './' }
+  }
+
+  event.waitUntil(self.registration.showNotification(title, options))
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  const target =
+    (event.notification.data && event.notification.data.url) || './'
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clients) => {
+        for (const client of clients) {
+          if ('focus' in client) {
+            if ('navigate' in client) client.navigate(target).catch(() => {})
+            return client.focus()
+          }
+        }
+        if (self.clients.openWindow) return self.clients.openWindow(target)
+        return undefined
+      })
   )
 })

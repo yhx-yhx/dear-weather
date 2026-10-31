@@ -1,0 +1,23 @@
+name = "dear-weather-push"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+
+# 每天 23:30 UTC = 北京时间 07:30
+[triggers]
+crons = ["30 23 * * *"]
+
+[vars]
+HER_CITY_ID = "101020100"
+HER_CITY_NAME = "上海"
+HER_TZ = "Asia/Shanghai"
+QWEATHER_API_HOST = "devapi.qweather.com"
+
+# 先在 Cloudflare 创建 KV：
+#   npx wrangler kv namespace create SUBSCRIPTIONS
+# 然后把返回的 id 填到这里
+[[kv_namespaces]]
+binding = "SUBSCRIPTIONS"
+id = "00000000000000000000000000000000"
+
+[observability]
+enabled = true

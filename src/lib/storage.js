@@ -30,6 +30,8 @@ export const DEFAULT_SETTINGS = {
   showMap: true,
   apiKey: '',
   apiHost: '',
+  pushUrl: '',
+  pushToken: '',
   phrases: {},
   letters: []
 }
