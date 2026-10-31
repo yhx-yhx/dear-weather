@@ -47,8 +47,10 @@ async function safeRequest(env, path, params) {
   }
 }
 
-export async function fetchWeather(env) {
-  const cityId = env.HER_CITY_ID
+export async function fetchWeather(env, cityConfig = null) {
+  const cityId = (cityConfig && cityConfig.id) || env.HER_CITY_ID
+  const cityName = (cityConfig && cityConfig.name) || env.HER_CITY_NAME || '她那边'
+  const cityTz = (cityConfig && cityConfig.tz) || env.HER_TZ || 'Asia/Shanghai'
   const key = env.QWEATHER_API_KEY
   if (!cityId) throw new Error('缺少 HER_CITY_ID')
   if (!key) throw new Error('缺少 QWEATHER_API_KEY')
@@ -68,8 +70,8 @@ export async function fetchWeather(env) {
   return {
     city: {
       id: cityId,
-      name: env.HER_CITY_NAME || '她那边',
-      tz: env.HER_TZ || 'Asia/Shanghai'
+      name: cityName,
+      tz: cityTz
     },
     now: nowRes.now || {},
     daily: Array.isArray(dailyRes.daily) ? dailyRes.daily : [],

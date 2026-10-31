@@ -562,7 +562,8 @@ async function enableNotifications() {
   try {
     await enablePush({
       workerUrl: draft.value.pushUrl,
-      token: draft.value.pushToken
+      token: draft.value.pushToken,
+      city: draft.value.her.city
     })
     pushSubscribed.value = true
     pushLabel.value = '已开启'

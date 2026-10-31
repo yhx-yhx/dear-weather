@@ -166,5 +166,6 @@ curl http://localhost:8788/config
 - 不要提交 `worker/.dev.vars`
 - `PUSH_TOKEN`、VAPID 私钥、和风 key 都放在 Cloudflare Secrets
 - 设备取消订阅或推送服务返回 404/410 时，Worker 会自动删除对应 KV 记录
-- 现在是单城市、单套阈值；如果要跟随 PWA 里的设置，需要再加一个 KV 配置同步接口
+- 订阅时会自动把当前 PWA 里「对方城市」同步到 KV，Worker 使用最后一次订阅上报的城市
+- 如果多台设备订阅不同城市，以最后一次为准
 - 推送内容是文字，不是分享图

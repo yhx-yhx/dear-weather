@@ -111,7 +111,16 @@ async function sendToAll(env, message) {
 }
 
 async function run(env) {
-  const bundle = await fetchWeather(env)
+  let cityConfig = null
+  if (env.SUBSCRIPTIONS) {
+    try {
+      const raw = await env.SUBSCRIPTIONS.get('config:city')
+      if (raw) cityConfig = JSON.parse(raw)
+    } catch (error) {
+      console.log('city config read failed')
+    }
+  }
+  const bundle = await fetchWeather(env, cityConfig)
   const message = buildMessage(bundle)
   const result = await sendToAll(env, message)
   console.log(
@@ -167,6 +176,18 @@ export default {
       if (!validSubscription(body.subscription)) {
         return json({ error: '订阅信息不完整' }, 400)
       }
+      if (body.city && body.city.id) {
+        await env.SUBSCRIPTIONS.put(
+          'config:city',
+          JSON.stringify({
+            id: String(body.city.id),
+            name: body.city.name || '',
+            tz: body.city.tz || 'Asia/Shanghai',
+            updatedAt: Date.now()
+          })
+        )
+      }
+
       const id = await endpointId(body.subscription.endpoint)
       await env.SUBSCRIPTIONS.put(
         `sub:${id}`,

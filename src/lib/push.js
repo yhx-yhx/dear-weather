@@ -74,7 +74,7 @@ export async function permissionState() {
   return Notification.permission
 }
 
-export async function enablePush({ workerUrl, token }) {
+export async function enablePush({ workerUrl, token, city }) {
   const base = checkWorker(workerUrl)
   const reason = pushBlockReason()
   if (reason) throw new Error(reason)
@@ -121,7 +121,17 @@ export async function enablePush({ workerUrl, token }) {
   const res = await fetch(`${base}/subscribe`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token, subscription: subscription.toJSON() })
+    body: JSON.stringify({
+      token,
+      subscription: subscription.toJSON(),
+      city: city
+        ? {
+            id: city.id,
+            name: city.name,
+            tz: city.tz
+          }
+        : null
+    })
   })
   if (!res.ok) {
     let message = `订阅失败（${res.status}）`
