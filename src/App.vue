@@ -137,7 +137,7 @@
           <span>只保存在这台设备</span>
         </div>
         <button type="button" class="foot-link" @click="openSettings('about')">
-          设置、备份与安装
+          设置与备份
         </button>
       </footer>
     </main>
@@ -168,7 +168,6 @@
       @close="closeSettings"
       @save="saveSettingsFromSheet"
       @clear="clearData"
-      @install="installApp"
     />
 
     <PosterModal
@@ -281,7 +280,6 @@ let toastTimer = null
 let popupTimer = null
 let tickTimer = null
 let refreshTimer = null
-let deferredPrompt = null
 
 /* ------------------------------------------------------------------ */
 /* 派生数据                                                            */
@@ -606,7 +604,7 @@ function clearData() {
 }
 
 /* ------------------------------------------------------------------ */
-/* 安装、提示与演示                                                    */
+/* 提示与演示                                                          */
 /* ------------------------------------------------------------------ */
 
 function showToast(message) {
@@ -615,26 +613,6 @@ function showToast(message) {
   toastTimer = setTimeout(() => {
     toast.value = ''
   }, 2800)
-}
-
-function onBeforeInstall(event) {
-  event.preventDefault()
-  deferredPrompt = event
-}
-
-async function installApp() {
-  if (!deferredPrompt) {
-    showToast('iPhone 用 Safari 分享 → 添加到主屏幕；Android 用浏览器菜单安装')
-    return
-  }
-  try {
-    deferredPrompt.prompt()
-    const choice = await deferredPrompt.userChoice
-    deferredPrompt = null
-    showToast(choice && choice.outcome === 'accepted' ? '已经放到主屏幕了' : '随时可以再安装')
-  } catch (e) {
-    showToast('安装没有完成，可以稍后再试')
-  }
 }
 
 function setMock(scene) {
@@ -665,8 +643,6 @@ watch(
 )
 
 onMounted(() => {
-  window.addEventListener('beforeinstallprompt', onBeforeInstall)
-
   if (ready.value) {
     if (cache.value && cache.value.fetchedAt) rebuildEvents()
     loadAll(false)
@@ -697,7 +673,6 @@ function onVisible() {
 }
 
 onBeforeUnmount(() => {
-  window.removeEventListener('beforeinstallprompt', onBeforeInstall)
   document.removeEventListener('visibilitychange', onVisible)
   clearInterval(tickTimer)
   clearInterval(refreshTimer)

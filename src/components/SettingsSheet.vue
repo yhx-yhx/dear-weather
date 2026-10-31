@@ -273,14 +273,6 @@
               </div>
             </div>
 
-            <div class="panel-title"><span>数据与隐私</span></div>
-            <p class="about-text">
-              城市、信件、短句都只存在这台设备的 localStorage 里，不会上传到任何服务器。
-            </p>
-            <p class="about-text">
-              纯静态页面无法在关闭后推送消息。真正把关心送到她手上的方式，是把关心卡做成图片发给她。
-            </p>
-
             <div class="panel-title with-gap"><span>API 设置</span></div>
             <label class="field">
               <span>和风 key（留空使用站点内置）</span>
@@ -299,12 +291,6 @@
               <input ref="fileInput" type="file" accept="application/json,.json" hidden @change="onImportFile" />
             </div>
             <button type="button" class="danger-btn" @click="onClear">清除本机所有数据</button>
-
-            <div class="panel-title with-gap"><span>安装</span></div>
-            <p class="about-text">
-              iPhone：Safari → 分享 → 添加到主屏幕。Android：Chrome → 菜单 → 安装应用。
-            </p>
-            <button type="button" class="soft-btn wide" @click="$emit('install')">尝试安装到主屏</button>
 
             <p v-if="notice" class="sheet-notice">{{ notice }}</p>
           </section>
@@ -340,7 +326,7 @@ const props = defineProps({
   startNewLetter: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['close', 'save', 'clear', 'install'])
+const emit = defineEmits(['close', 'save', 'clear'])
 
 const tabs = [
   { key: 'cities', label: '城市' },
@@ -843,12 +829,6 @@ onBeforeUnmount(() => clearTimeout(deleteTimer))
   font-size: 10px;
   font-weight: 600;
   color: #8b7c96;
-}
-.soft-btn.wide {
-  width: 100%;
-  margin-top: 4px;
-  padding: 11px;
-  font-size: 11px;
 }
 .save-letter {
   width: 100%;
