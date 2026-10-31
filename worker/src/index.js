@@ -144,9 +144,18 @@ export default {
     const url = new URL(request.url)
 
     if (request.method === 'GET' && url.pathname === '/config') {
+      let city = env.HER_CITY_NAME || ''
+      if (env.SUBSCRIPTIONS) {
+        try {
+          const raw = await env.SUBSCRIPTIONS.get('config:city')
+          if (raw) city = JSON.parse(raw).name || city
+        } catch (error) {
+          /* ignore */
+        }
+      }
       return json({
         publicKey: env.VAPID_PUBLIC_KEY || '',
-        city: env.HER_CITY_NAME || '',
+        city,
         ready: Boolean(env.VAPID_PUBLIC_KEY && env.SUBSCRIPTIONS)
       })
     }
