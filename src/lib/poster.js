@@ -395,7 +395,7 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
   ctx.fillStyle = INK
   ctx.font = `400 30px ${FAMILY}`
   ctx.fillText(
-    gap >= 8 ? '同一时刻，两个季节。' : '天气不同步，惦记可以同步。',
+    gap >= 8 ? '两座城市，两种天气。' : '天气不同步，惦记可以同步。',
     540,
     lineY + 58
   )
@@ -426,12 +426,12 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
   ctx.shadowBlur = 30
   ctx.shadowOffsetY = 12
   ctx.fillStyle = 'rgba(255, 255, 255, 0.78)'
-  roundRect(ctx, 78, 1034, W - 156, 232, 28)
+  roundRect(ctx, 78, 1034, W - 156, 226, 28)
   ctx.fill()
   ctx.restore()
   ctx.strokeStyle = 'rgba(255,255,255,0.95)'
   ctx.lineWidth = 2
-  roundRect(ctx, 78, 1034, W - 156, 232, 28)
+  roundRect(ctx, 78, 1034, W - 156, 226, 28)
   ctx.stroke()
 
   ctx.textAlign = 'left'
@@ -455,11 +455,11 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
   ctx.font = `400 20px ${FAMILY}`
   ctx.fillText('dear-weather · 把今天的天气，替我告诉你', 90, 1362)
 
-  drawQrCode(ctx, siteUrl, 812, 1280, 92)
-  ctx.textAlign = 'center'
+  drawQrCode(ctx, siteUrl, 830, 1272, 118)
+  ctx.textAlign = 'right'
   ctx.fillStyle = INK_SOFT
-  ctx.font = `400 16px ${FAMILY}`
-  ctx.fillText('扫码打开天气信使', 858, 1392)
+  ctx.font = `400 18px ${FAMILY}`
+  ctx.fillText('扫码打开天气信使', 792, 1388)
 
   return canvas
 }
