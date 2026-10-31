@@ -11,7 +11,7 @@
         </div>
 
         <div class="poster-preview">
-          <img v-if="dataUrl" :src="dataUrl" alt="天气信使分享卡" />
+          <img v-if="dataUrl" :src="dataUrl" alt="Dear Weather 分享卡" />
           <div v-else class="poster-loading">
             <span class="loading-spark">✦</span>
             正在写这张卡片…

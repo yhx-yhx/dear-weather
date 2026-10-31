@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "天气信使 · 把今天的天气，替我告诉你",
+  "description": "Dear Weather · 把今天的天气，替我告诉你",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 7275",
     "build": "vite build",

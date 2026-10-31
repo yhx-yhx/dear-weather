@@ -21,7 +21,7 @@
             拆信
           </button>
           <button type="button" class="popup-btn primary" @click="$emit('share')">
-            做成卡片
+            生成分享图
           </button>
         </div>
 

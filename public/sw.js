@@ -1,4 +1,4 @@
-/* 天气信使 Service Worker：让页面能离线打开，天气本身仍然实时请求。 */
+/* Dear Weather Service Worker：让页面能离线打开，天气本身仍然实时请求。 */
 
 const VERSION = 'dear-weather-v1.0.0'
 

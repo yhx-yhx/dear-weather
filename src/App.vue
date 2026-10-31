@@ -12,8 +12,8 @@
           <div class="brand">
             <span class="brand-mark"><BrandMark /></span>
             <span class="brand-text">
-              <b>天气信使</b>
-              <em>DEAR WEATHER</em>
+              <b>Dear Weather</b>
+              <em>每天先看她那边</em>
             </span>
           </div>
 
@@ -131,11 +131,6 @@
       <ForecastList v-if="herBundle" :bundle="herBundle" :city="settings.her.city" />
 
       <footer class="page-foot">
-        <div class="foot-line">
-          <span>天气数据来自和风天气</span>
-          <span class="foot-sep">·</span>
-          <span>地图来自天地图</span>
-        </div>
         <div class="foot-line soft">
           <span>{{ updatedText }}</span>
           <span class="foot-sep">·</span>
@@ -539,7 +534,7 @@ function maybePopup() {
 function openPoster(event) {
   posterEvent.value = event || primary.value
   if (!posterEvent.value) {
-    showToast('还没有可以做成卡片的关心')
+    showToast('还没有可以生成分享图的关心')
     return
   }
   popupEvent.value = null
@@ -781,9 +776,9 @@ onBeforeUnmount(() => {
 
 .brand-text em {
   font-style: normal;
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: 2px;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
   color: #c4aecf;
 }
 

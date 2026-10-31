@@ -268,15 +268,14 @@
             <div class="about-card">
               <span class="about-mark">✉</span>
               <div>
-                <b>天气信使 · Dear Weather</b>
+                <b>Dear Weather</b>
                 <p>把今天的天气，替我告诉你。</p>
               </div>
             </div>
 
             <div class="panel-title"><span>数据与隐私</span></div>
             <p class="about-text">
-              天气来自和风天气，地图来自天地图。城市、信件、短句都只存在这台设备的
-              localStorage 里，不会上传到任何服务器。
+              城市、信件、短句都只存在这台设备的 localStorage 里，不会上传到任何服务器。
             </p>
             <p class="about-text">
               纯静态页面无法在关闭后推送消息。真正把关心送到她手上的方式，是把关心卡做成图片发给她。

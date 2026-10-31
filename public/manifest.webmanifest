@@ -1,6 +1,6 @@
 {
-  "name": "天气信使 · Dear Weather",
-  "short_name": "天气信使",
+  "name": "Dear Weather",
+  "short_name": "Dear Weather",
   "description": "把今天的天气，替我告诉你。一个双城天气页，她那边下雨、降温时，替你说一句关心。",
   "lang": "zh-CN",
   "dir": "ltr",
@@ -41,7 +41,7 @@
     {
       "name": "看她那边",
       "short_name": "看她",
-      "description": "打开天气信使，先看她的城市",
+      "description": "打开 Dear Weather，先看她的城市",
       "url": "./",
       "icons": [
         {

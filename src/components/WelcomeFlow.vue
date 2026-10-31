@@ -4,8 +4,8 @@
       <div class="welcome-brand">
         <BrandMark />
       </div>
-      <span class="welcome-eyebrow">D E A R   W E A T H E R</span>
-      <h1 class="welcome-title">天气信使</h1>
+      <span class="welcome-eyebrow">两 座 城 市</span>
+      <h1 class="welcome-title">Dear Weather</h1>
       <p class="welcome-lede">
         先告诉我，你在哪，她在哪。
         <br />
@@ -49,8 +49,6 @@
 
       <p class="privacy">
         城市只保存在这台设备上，不会上传。
-        <br />
-        天气数据来自和风天气，地图来自天地图。
       </p>
     </div>
   </div>

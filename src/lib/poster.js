@@ -337,7 +337,7 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
   ctx.fillText('D E A R   W E A T H E R', 140, 98)
   ctx.fillStyle = INK
   ctx.font = `600 52px ${FAMILY}`
-  ctx.fillText('天气信使', 86, 178)
+  ctx.fillText('Dear Weather', 86, 178)
   ctx.textAlign = 'right'
   ctx.fillStyle = INK_SOFT
   ctx.font = `400 24px ${FAMILY}`
@@ -450,16 +450,14 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
 
   // 页脚
   ctx.fillStyle = INK_SOFT
-  ctx.font = `400 22px ${FAMILY}`
-  ctx.fillText('天气数据来自和风天气', 90, 1324)
   ctx.font = `400 20px ${FAMILY}`
-  ctx.fillText('dear-weather · 把今天的天气，替我告诉你', 90, 1362)
+  ctx.fillText('dear-weather · 把今天的天气，替我告诉你', 90, 1350)
 
   drawQrCode(ctx, siteUrl, 830, 1272, 118)
   ctx.textAlign = 'right'
   ctx.fillStyle = INK_SOFT
   ctx.font = `400 18px ${FAMILY}`
-  ctx.fillText('扫码打开天气信使', 792, 1388)
+  ctx.fillText('扫码打开 Dear Weather', 792, 1388)
 
   return canvas
 }
@@ -492,7 +490,7 @@ export async function sharePoster(canvas, filename = 'dear-weather.png') {
     try {
       await navigator.share({
         files: [file],
-        title: '天气信使',
+        title: 'Dear Weather',
         text: '把今天的天气，替我告诉你。'
       })
       return 'shared'

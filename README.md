@@ -1,4 +1,4 @@
-# 天气信使 · Dear Weather
+﻿# Dear Weather
 
 > 把今天的天气，替我告诉你。
 
@@ -70,7 +70,7 @@ VITE_TDT_MAP_KEY=你的天地图key
 ```bash
 git init
 git add .
-git commit -m "feat: 天气信使 · 双城天气与关心卡"
+git commit -m "feat: Dear Weather · 双城天气与关心卡"
 git branch -M main
 git remote add origin https://github.com/<你的用户名>/dear-weather.git
 git push -u origin main
@@ -128,7 +128,8 @@ git push -u origin main
 
 ## 已知限制
 
-- **不能后台推送**。纯静态站点关闭后不会主动通知；关心靠打开页面和分享图送达。
+- **不能后台推送**。纯静态站点关闭后不会主动通知；系统通知最多只能提醒你自己的设备，不能替你把消息发给她。
+- **信不会寄出**。信只存在你的设备上，她无法远程拆开；想让她看到，需要你把关心图或信件截图发给她。
 - **天气有缓存延迟**。默认 30 分钟刷新一次，可在设置里改。
 - **和风免费额度有限**。每次刷新会请求她的城市 7 个接口、你的城市 3 个接口；频繁刷新会更快用完额度。
 - **降温判断需要历史**。首次使用没有昨天的记录，要等到第二天才能判断「比昨天低多少」。

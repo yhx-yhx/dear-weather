@@ -19,7 +19,7 @@
           拆信
         </button>
         <button type="button" class="care-action share" @click="$emit('share')">
-          做成卡片
+          生成分享图
         </button>
       </div>
     </div>
