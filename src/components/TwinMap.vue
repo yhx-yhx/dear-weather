@@ -23,6 +23,8 @@
           @error="onTileError"
         />
         <div class="map-tint"></div>
+        <span class="map-glow glow-me" :style="mePinStyle"></span>
+        <span class="map-glow glow-her" :style="herPinStyle"></span>
 
         <svg
           class="map-lines"
@@ -293,6 +295,22 @@ onBeforeUnmount(() => {
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.42),
     inset 0 -34px 70px rgba(255, 255, 255, 0.22);
+}
+.map-glow {
+  position: absolute;
+  z-index: 1;
+  width: 128px;
+  height: 128px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  filter: blur(20px);
+  pointer-events: none;
+}
+.glow-me {
+  background: radial-gradient(circle, rgba(143, 184, 222, 0.3), rgba(143, 184, 222, 0) 70%);
+}
+.glow-her {
+  background: radial-gradient(circle, rgba(233, 143, 178, 0.25), rgba(233, 143, 178, 0) 70%);
 }
 .map-lines {
   position: absolute;

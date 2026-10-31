@@ -130,7 +130,7 @@ const uvText = computed(() => {
   overflow: hidden;
   margin-top: 14px;
   padding: 18px 19px 14px;
-  border-radius: 26px;
+  border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.95);
   box-shadow:
     0 18px 40px -26px rgba(79, 67, 88, 0.45),
