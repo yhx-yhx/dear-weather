@@ -2,21 +2,67 @@
 
 const SW_URL = './sw.js'
 
+function hasPushManager() {
+  if (typeof window === 'undefined') return false
+  if ('PushManager' in window) return true
+  return (
+    typeof ServiceWorkerRegistration !== 'undefined' &&
+    'pushManager' in ServiceWorkerRegistration.prototype
+  )
+}
+
+function isIOS() {
+  if (typeof navigator === 'undefined') return false
+  const ua = navigator.userAgent || ''
+  if (/iPad|iPhone|iPod/.test(ua)) return true
+  return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1
+}
+
+function isStandalone() {
+  if (typeof window === 'undefined') return false
+  const displayMode =
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(display-mode: standalone)').matches
+  return Boolean(displayMode || window.navigator.standalone === true)
+}
+
 export function pushSupported() {
   return (
     typeof window !== 'undefined' &&
     'serviceWorker' in navigator &&
-    'PushManager' in window &&
+    hasPushManager() &&
     'Notification' in window
   )
 }
 
 export function pushBlockReason() {
   if (typeof window === 'undefined') return '当前环境不支持系统通知'
+
+  const ua = navigator.userAgent || ''
+  if (/MicroMessenger/i.test(ua)) {
+    return '微信内置浏览器不能开启系统通知，请点右上角 → 在浏览器打开'
+  }
+  if (/QQBrowser|MQQBrowser|\sQQ\//i.test(ua)) {
+    return 'QQ 内置浏览器不能开启系统通知，请用系统浏览器打开'
+  }
+  if (/Weibo/i.test(ua)) {
+    return '微博内置浏览器不能开启系统通知，请用系统浏览器打开'
+  }
+
   if (!window.isSecureContext) return '需要 HTTPS 才能开启系统通知'
-  if (!('serviceWorker' in navigator)) return '这个浏览器不支持 Service Worker'
-  if (!('PushManager' in window)) return '这个浏览器不支持 Web Push'
-  if (!('Notification' in window)) return '这个浏览器不支持系统通知'
+  if (!('serviceWorker' in navigator)) {
+    return '这个浏览器不支持 Service Worker，请换 Chrome 或 Safari'
+  }
+  if (isIOS() && !isStandalone()) {
+    return 'iPhone 需要用 Safari 打开，再“添加到主屏幕”，从主屏幕打开'
+  }
+  if (!hasPushManager()) {
+    if (isIOS()) return '这台 iPhone 需要 iOS 16.4 或更高版本才支持 Web Push'
+    return '这个浏览器不支持 Web Push，请换 Chrome / Edge，或安装到主屏幕后再试'
+  }
+  if (!('Notification' in window)) {
+    return '这个浏览器不支持系统通知，请换 Chrome 或 Safari'
+  }
   return ''
 }
 

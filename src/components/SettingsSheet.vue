@@ -175,8 +175,19 @@
               <span>{{ pushDetail }}</span>
             </div>
 
+            <div v-if="pushBlocked" class="push-guide">
+              <span>微信 / QQ 里：点右上角 → 在浏览器打开</span>
+              <span>iPhone：Safari → 分享 → 添加到主屏幕 → 从主屏幕打开</span>
+              <span>Android：Chrome → 菜单 → 安装应用</span>
+            </div>
+
             <div class="button-row">
-              <button type="button" class="soft-btn" :disabled="pushBusy" @click="enableNotifications">
+              <button
+                type="button"
+                class="soft-btn"
+                :disabled="pushBusy || pushBlocked"
+                @click="enableNotifications"
+              >
                 {{ pushBusy ? '处理中…' : '开启通知' }}
               </button>
               <button
@@ -439,7 +450,6 @@ import {
   enablePush,
   permissionState,
   pushBlockReason,
-  pushSupported,
   sendTestPush
 } from '../lib/push'
 import {
@@ -513,6 +523,7 @@ const fileInput = ref(null)
 
 const pushBusy = ref(false)
 const pushSubscribed = ref(false)
+const pushBlocked = ref(false)
 const pushLabel = ref('未开启')
 const pushDetail = ref('设置好 Worker 地址和口令后点开启')
 const pushTone = ref('idle')
@@ -533,16 +544,30 @@ async function refreshPushState() {
   pushError.value = ''
   pushNotice.value = ''
 
-  if (!pushSupported()) {
+  const reason = pushBlockReason()
+  if (reason) {
+    pushBlocked.value = true
     pushSubscribed.value = false
-    pushLabel.value = '这个浏览器不支持'
-    pushDetail.value = pushBlockReason() || '换一个浏览器试试'
+    if (/微信|QQ|微博/.test(reason)) {
+      pushLabel.value = '请在系统浏览器打开'
+    } else if (/添加到主屏幕/.test(reason)) {
+      pushLabel.value = '需要添加到主屏幕'
+    } else if (/HTTPS/.test(reason)) {
+      pushLabel.value = '需要 HTTPS'
+    } else if (/16\.4/.test(reason)) {
+      pushLabel.value = 'iOS 版本不够'
+    } else {
+      pushLabel.value = '这个环境不支持'
+    }
+    pushDetail.value = reason
     pushTone.value = 'warn'
     return
   }
 
+  pushBlocked.value = false
   const permission = await permissionState()
   if (permission === 'denied') {
+    pushBlocked.value = true
     pushSubscribed.value = false
     pushLabel.value = '通知被浏览器拒绝'
     pushDetail.value = '去浏览器设置里允许通知后再试'
@@ -558,7 +583,7 @@ async function refreshPushState() {
     pushTone.value = 'ok'
   } else {
     pushLabel.value = '未开启'
-    pushDetail.value = '设置好 Worker 地址和口令后点开启'
+    pushDetail.value = '地址和口令已内置，点开启即可'
     pushTone.value = 'idle'
   }
 }
@@ -1280,6 +1305,33 @@ onBeforeUnmount(() => clearTimeout(deleteTimer))
 }
 .push-status.warn b {
   color: #a8754b;
+}
+.push-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 2px 0 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 250, 244, 0.8);
+  border: 1px solid rgba(240, 220, 194, 0.7);
+}
+.push-guide span {
+  position: relative;
+  padding-left: 12px;
+  font-size: 9px;
+  line-height: 1.55;
+  color: #a8754b;
+}
+.push-guide span::before {
+  content: '';
+  position: absolute;
+  left: 1px;
+  top: 6px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #dca579;
 }
 .hint.push-error {
   color: #b25f6f;
