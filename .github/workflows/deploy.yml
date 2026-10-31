@@ -36,6 +36,8 @@ jobs:
           VITE_QWEATHER_API_KEY: ${{ secrets.QWEATHER_API_KEY }}
           VITE_QWEATHER_API_HOST: ${{ secrets.QWEATHER_API_HOST }}
           VITE_TDT_MAP_KEY: ${{ secrets.TDT_MAP_KEY }}
+          VITE_PUSH_WORKER_URL: ${{ secrets.PUSH_WORKER_URL }}
+          VITE_PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

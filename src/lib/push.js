@@ -170,10 +170,14 @@ export async function disablePush({ workerUrl, token }) {
 
 export async function sendTestPush({ workerUrl, token }) {
   const base = checkWorker(workerUrl)
+  const subscription = await currentSubscription()
+  if (!subscription) {
+    throw new Error('这台设备还没有订阅，先点“开启通知”')
+  }
   const res = await fetch(`${base}/test`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token })
+    body: JSON.stringify({ token, endpoint: subscription.endpoint })
   })
   let data = null
   try {

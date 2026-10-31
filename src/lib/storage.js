@@ -9,6 +9,9 @@ const KEYS = {
   history: `${NS}:history:v1`
 }
 
+const BUILT_IN_PUSH_URL = import.meta.env.VITE_PUSH_WORKER_URL || ''
+const BUILT_IN_PUSH_TOKEN = import.meta.env.VITE_PUSH_TOKEN || ''
+
 export const DEFAULT_LAYOUT = ['her', 'map', 'me', 'care', 'letters', 'hourly', 'forecast']
 
 export const DEFAULT_SETTINGS = {
@@ -33,8 +36,8 @@ export const DEFAULT_SETTINGS = {
   showMap: true,
   apiKey: '',
   apiHost: '',
-  pushUrl: '',
-  pushToken: '',
+  pushUrl: BUILT_IN_PUSH_URL,
+  pushToken: BUILT_IN_PUSH_TOKEN,
   phrases: {},
   letters: []
 }
@@ -86,6 +89,8 @@ export function mergeSettings(raw) {
     her: { ...base.her, ...(raw.her || {}) },
     thresholds: { ...base.thresholds, ...(raw.thresholds || {}) },
     layout,
+    pushUrl: raw.pushUrl || base.pushUrl,
+    pushToken: raw.pushToken || base.pushToken,
     phrases: raw.phrases && typeof raw.phrases === 'object' ? { ...raw.phrases } : {},
     letters: Array.isArray(raw.letters) ? raw.letters : []
   }

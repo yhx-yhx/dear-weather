@@ -242,13 +242,26 @@ export default {
       if (!authorized(env, body.token)) {
         return json({ error: '口令不对' }, 401)
       }
-      const result = await sendToAll(env, {
-        title: 'Dear Weather 测试通知',
-        body: '如果你看到这条，说明她的手机已经能收到提醒了。',
-        url: 'https://yhx-yhx.github.io/dear-weather/',
-        scene: 'test'
-      })
-      return json({ ok: true, ...result })
+      if (!body.endpoint) {
+        return json({ error: '缺少订阅信息' }, 400)
+      }
+      const id = await endpointId(body.endpoint)
+      const raw = await env.SUBSCRIPTIONS.get(`sub:${id}`)
+      if (!raw) {
+        return json({ ok: true, count: 0, results: [] })
+      }
+      try {
+        const subscription = { key: `sub:${id}`, ...JSON.parse(raw) }
+        const status = await sendPush(env, subscription, {
+          title: 'Dear Weather 测试通知',
+          body: '如果你看到这条，说明这台手机已经能收到提醒了。',
+          url: 'https://yhx-yhx.github.io/dear-weather/',
+          scene: 'test'
+        })
+        return json({ ok: true, count: 1, results: [status] })
+      } catch (error) {
+        return json({ error: error.message }, 500)
+      }
     }
 
     return json({
