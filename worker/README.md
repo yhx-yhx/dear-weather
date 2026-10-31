@@ -99,6 +99,16 @@ https://dear-weather-push.<你的子域>.workers.dev
 
 ### 5. 在手机上开启
 
+可以直接用一键配置链接，省得在手机上输入 Worker 地址和口令：
+
+```text
+https://yhx-yhx.github.io/dear-weather/?push=<URL编码后的Worker地址>&token=<PUSH_TOKEN>
+```
+
+打开后会自动填入配置并跳到「设置 → 通知」，点「开启通知」即可。
+
+也可以手动：
+
 1. 用她的手机打开 <https://yhx-yhx.github.io/dear-weather/>
 2. 浏览器菜单 → 添加到主屏幕
 3. 从主屏幕打开 Dear Weather

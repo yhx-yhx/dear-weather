@@ -622,6 +622,32 @@ function saveSettingsSilently(next) {
   rebuildEvents()
 }
 
+function applyPushParams() {
+  try {
+    const params = new URLSearchParams(window.location.search)
+    const pushUrl = params.get('push')
+    const pushToken = params.get('token')
+    if (!pushUrl || !pushToken) return false
+
+    const next = { ...settings.value, pushUrl, pushToken }
+    settings.value = next
+    saveSettings(next)
+
+    const url = new URL(window.location.href)
+    url.searchParams.delete('push')
+    url.searchParams.delete('token')
+    window.history.replaceState({}, '', url.toString())
+
+    if (ready.value) {
+      openSettings('notify')
+      showToast('推送配置已填入，点“开启通知”')
+    }
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
 function finishWelcome({ me, her }) {
   const next = {
     ...settings.value,
@@ -633,6 +659,7 @@ function finishWelcome({ me, her }) {
   settings.value = next
   saveSettings(next)
   loadAll(true)
+  applyPushParams()
 }
 
 function clearData() {
@@ -689,6 +716,7 @@ watch(
 
 onMounted(() => {
   if (ready.value) {
+    applyPushParams()
     if (cache.value && cache.value.fetchedAt) rebuildEvents()
     loadAll(false)
   }
