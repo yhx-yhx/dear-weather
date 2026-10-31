@@ -26,7 +26,7 @@
         </div>
 
         <button type="button" class="popup-dismiss" @click="$emit('close')">
-          知道了，今天会多看她一眼
+          知道了，今天会多看一眼{{ personName }}
         </button>
       </div>
     </div>
@@ -41,7 +41,8 @@ import { sceneKind } from '../lib/icons'
 const props = defineProps({
   event: { type: Object, default: null },
   phrase: { type: String, default: '' },
-  hasLetter: { type: Boolean, default: false }
+  hasLetter: { type: Boolean, default: false },
+  personName: { type: String, default: '她' }
 })
 
 defineEmits(['close', 'cycle', 'share', 'letter'])

@@ -60,6 +60,7 @@ export function buildEvents({ me, her, settings, history = {}, now = new Date() 
   if (!me || !me.now || !her || !her.now) return []
 
   const t = settings.thresholds
+  const herWord = (settings.her && settings.her.name) || '她'
   const herNow = her.now
   const herToday = (her.daily && her.daily[0]) || {}
   const herTomorrow = (her.daily && her.daily[1]) || {}
@@ -78,7 +79,7 @@ export function buildEvents({ me, her, settings, history = {}, now = new Date() 
         priority: 100,
         level: 'warning',
         scene: 'warning',
-        title: `她那边有${warning.typeName || '天气'}预警`,
+        title: `${herWord}那边有${warning.typeName || '天气'}预警`,
         detail: `${warning.title || '天气预警'}${warning.text ? `：${truncate(warning.text, 54)}` : ''}`,
         phrases: 'warning'
       })
@@ -96,7 +97,9 @@ export function buildEvents({ me, her, settings, history = {}, now = new Date() 
         priority: 90,
         level: 'care',
         scene: 'cold',
-        title: coldNow ? `她那边 ${Math.round(herTemp)}℃` : `她那边今晚 ${Math.round(tonightMin)}℃`,
+        title: coldNow
+          ? `${herWord}那边 ${Math.round(herTemp)}℃`
+          : `${herWord}那边今晚 ${Math.round(tonightMin)}℃`,
         detail: coldNow
           ? `体感 ${Math.round(herFeels)}℃，今晚最低 ${Math.round(tonightMin)}℃。有一封信，等这个温度很久了。`
           : `现在 ${Math.round(herTemp)}℃，今晚会降到 ${Math.round(tonightMin)}℃。有一封信，可以提前拆了。`,
@@ -121,15 +124,19 @@ export function buildEvents({ me, her, settings, history = {}, now = new Date() 
     let detail
 
     if (nowWet) {
-      title = isSnow ? '她那边下雪了' : isThunder ? '她那边在打雷' : '她那边正在下雨'
+      title = isSnow
+        ? `${herWord}那边下雪了`
+        : isThunder
+          ? `${herWord}那边在打雷`
+          : `${herWord}那边正在下雨`
       detail = `${herNow.text || '有降水'}，体感 ${Math.round(herFeels)}℃。${
         isSnow ? '路滑，走慢一点。' : '伞要带，鞋也别穿太薄。'
       }`
     } else if (summary) {
-      title = isSnow ? '她那边要下雪了' : '她那边要下雨了'
+      title = isSnow ? `${herWord}那边要下雪了` : `${herWord}那边要下雨了`
       detail = summary
     } else {
-      title = isSnow ? '她那边要下雪了' : '她那边要下雨了'
+      title = isSnow ? `${herWord}那边要下雪了` : `${herWord}那边要下雨了`
       detail = `从 ${formatHour(nextWet.fxTime)} 开始，降水概率 ${nextWet.pop}%。伞要带，鞋也别穿太薄。`
     }
 
@@ -159,7 +166,7 @@ export function buildEvents({ me, her, settings, history = {}, now = new Date() 
           priority: 70,
           level: 'care',
           scene: 'cold',
-          title: '她那边降温了',
+          title: `${herWord}那边降温了`,
           detail: `今天最高 ${Math.round(Number(herToday.tempMax))}℃，比${relativeDayLabel(
             previous.date,
             todayKey
@@ -181,10 +188,10 @@ export function buildEvents({ me, her, settings, history = {}, now = new Date() 
           priority: 65,
           level: 'info',
           scene: 'cold',
-          title: '明天她那边要降温',
+          title: `明天${herWord}那边要降温`,
           detail: `明天最高 ${Math.round(Number(herTomorrow.tempMax))}℃，比今天低 ${Math.round(
             Math.abs(delta)
-          )}℃。今晚提醒她找件厚的。`,
+          )}℃。今晚提醒${herWord}找件厚的。`,
           phrases: 'cold'
         })
       )
@@ -201,7 +208,7 @@ export function buildEvents({ me, her, settings, history = {}, now = new Date() 
         level: 'info',
         scene: 'gap',
         title: `你们之间差 ${Math.round(gap)}℃`,
-        detail: `你 ${Math.round(meTemp)}℃，她 ${Math.round(herTemp)}℃。同一时刻，两个季节。`,
+        detail: `你 ${Math.round(meTemp)}℃，${herWord} ${Math.round(herTemp)}℃。同一时刻，两个季节。`,
         phrases: 'gap',
         meta: { gap: Math.round(gap) }
       })
@@ -216,7 +223,7 @@ export function buildEvents({ me, her, settings, history = {}, now = new Date() 
         priority: 55,
         level: 'care',
         scene: 'hot',
-        title: `她那边 ${Math.round(herTemp)}℃`,
+        title: `${herWord}那边 ${Math.round(herTemp)}℃`,
         detail: `体感 ${Math.round(herFeels)}℃，注意防晒补水。冰饮可以，别只喝冰的。`,
         unlock: 'hot',
         phrases: 'hot'
@@ -233,7 +240,7 @@ export function buildEvents({ me, her, settings, history = {}, now = new Date() 
         priority: 50,
         level: 'info',
         scene: 'wind',
-        title: `她那边风有点大`,
+        title: `${herWord}那边风有点大`,
         detail: `${herNow.windDir || '风'} ${herNow.windScale} 级，体感 ${Math.round(
           herFeels
         )}℃。出门把外套扣好。`,
@@ -251,7 +258,7 @@ export function buildEvents({ me, her, settings, history = {}, now = new Date() 
         priority: 48,
         level: 'info',
         scene: 'aqi',
-        title: '她那边空气一般',
+        title: `${herWord}那边空气一般`,
         detail: `AQI ${Math.round(aqi)}，${her.air.category || '空气质量一般'}。口罩可以戴上，窗户先别开太大。`,
         phrases: 'aqi'
       })
@@ -266,7 +273,7 @@ export function buildEvents({ me, her, settings, history = {}, now = new Date() 
         priority: 46,
         level: 'info',
         scene: 'fog',
-        title: '她那边能见度不高',
+        title: `${herWord}那边能见度不高`,
         detail: `${herNow.text || '有雾'}，能见度 ${herNow.vis || '较低'} 公里。过马路多看一眼，慢一点。`,
         phrases: 'fog'
       })
@@ -282,8 +289,8 @@ export function buildEvents({ me, her, settings, history = {}, now = new Date() 
         priority: 20,
         level: 'good',
         scene: 'clear',
-        title: '她那边天气很好',
-        detail: `${herNow.text}，${Math.round(herTemp)}℃。今天适合把好消息告诉她。`,
+        title: `${herWord}那边天气很好`,
+        detail: `${herNow.text}，${Math.round(herTemp)}℃。今天适合把好消息告诉${herWord}。`,
         phrases: 'clear'
       })
     )
@@ -297,8 +304,8 @@ export function buildEvents({ me, her, settings, history = {}, now = new Date() 
         priority: 15,
         level: 'info',
         scene: 'night',
-        title: '她那边已经很晚了',
-        detail: `她那边 ${String(herHour).padStart(2, '0')} 点多。天气看过了，就别吵她睡觉。`,
+        title: `${herWord}那边已经很晚了`,
+        detail: `${herWord}那边 ${String(herHour).padStart(2, '0')} 点多。天气看过了，就别吵${herWord}睡觉。`,
         phrases: 'night'
       })
     )
@@ -311,7 +318,7 @@ export function buildEvents({ me, her, settings, history = {}, now = new Date() 
       priority: 0,
       level: 'info',
       scene: 'daily',
-      title: '今天也想知道她那边怎么样',
+      title: `今天也想知道${herWord}那边怎么样`,
       detail: `${herNow.text || '天气'}，${Math.round(herTemp)}℃。看完天气，记得也照顾好自己。`,
       phrases: 'daily'
     })
@@ -380,6 +387,7 @@ export function letterUnlocked(letter, { me, her, settings, event, now = new Dat
 export function triggerLabel(letter, settings) {
   if (!letter) return ''
   const t = settings.thresholds
+  const herWord = (settings.her && settings.her.name) || '她'
   switch (letter.trigger) {
     case 'cold':
       return `低于 ${num(letter.value, t.cold)}℃ 时拆开`
@@ -388,9 +396,9 @@ export function triggerLabel(letter, settings) {
     case 'gap':
       return `两地温差大于 ${num(letter.value, t.gap)}℃ 时拆开`
     case 'rain':
-      return '她那边下雨时拆开'
+      return `${herWord}那边下雨时拆开`
     case 'snow':
-      return '她那边下雪时拆开'
+      return `${herWord}那边下雪时拆开`
     case 'date': {
       if (!letter.date) return '指定日期拆开'
       const [month, day] = String(letter.date).split('-')

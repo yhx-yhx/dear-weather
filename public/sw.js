@@ -1,6 +1,6 @@
 /* Dear Weather Service Worker：让页面能离线打开，天气本身仍然实时请求。 */
 
-const VERSION = 'dear-weather-v1.0.3'
+const VERSION = 'dear-weather-v1.0.4'
 
 const CORE = [
   './',

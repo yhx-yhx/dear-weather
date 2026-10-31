@@ -56,7 +56,7 @@
       </div>
 
       <div class="card-foot">
-        <span class="foot-place">{{ role === 'her' ? '她那边' : '你这边' }} {{ localClock }}</span>
+        <span class="foot-place">{{ role === 'her' ? `${personName}那边` : '你这边' }} {{ localClock }}</span>
         <span v-if="diffTz" class="foot-tz">异地时区</span>
         <span v-else class="foot-tz">{{ weekday }}</span>
       </div>
@@ -128,8 +128,9 @@ const uvText = computed(() => {
 .city-card {
   position: relative;
   overflow: hidden;
-  padding: 18px 20px 14px;
-  border-radius: 30px;
+  margin-top: 14px;
+  padding: 18px 19px 14px;
+  border-radius: 26px;
   border: 1px solid rgba(255, 255, 255, 0.95);
   box-shadow:
     0 18px 40px -26px rgba(79, 67, 88, 0.45),

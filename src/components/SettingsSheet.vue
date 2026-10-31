@@ -39,9 +39,23 @@
                 <input v-model="draft.me.name" type="text" maxlength="12" placeholder="我" />
               </label>
               <label class="field">
-                <span>她的称呼</span>
-                <input v-model="draft.her.name" type="text" maxlength="12" placeholder="她" />
+                <span>对方称呼</span>
+                <input v-model="draft.her.name" type="text" maxlength="12" placeholder="她 / 他" />
               </label>
+            </div>
+
+            <div class="pronoun-row">
+              <span>首页显示</span>
+              <button
+                v-for="item in pronounOptions"
+                :key="item"
+                type="button"
+                class="pronoun-chip"
+                :class="{ active: draft.her.name === item }"
+                @click="draft.her.name = item"
+              >
+                {{ item }}
+              </button>
             </div>
 
             <div class="city-block">
@@ -49,8 +63,8 @@
               <CityPicker v-model="draft.me.city" placeholder="搜索我的城市…" :settings="draft" />
             </div>
             <div class="city-block">
-              <span class="city-label"><i class="dot her"></i>她的城市</span>
-              <CityPicker v-model="draft.her.city" placeholder="搜索她的城市…" :settings="draft" />
+              <span class="city-label"><i class="dot her"></i>对方城市</span>
+              <CityPicker v-model="draft.her.city" placeholder="搜索对方城市…" :settings="draft" />
             </div>
 
             <p class="hint">
@@ -123,7 +137,7 @@
               <textarea
                 v-model="phraseText"
                 rows="6"
-                placeholder="写几句你会在这种天气里对她说的话…"
+                placeholder="写几句你会在这种天气里对对方说的话…"
                 @input="commitPhrase"
               ></textarea>
             </label>
@@ -132,9 +146,9 @@
 
           <!-- 通知 -->
           <section v-else-if="tab === 'notify'" class="panel">
-            <div class="panel-title"><span>她手机上的系统通知</span></div>
+            <div class="panel-title"><span>对方手机上的系统通知</span></div>
             <p class="about-text">
-              在她手机上打开本站 → 添加到主屏幕 → 在这里开启。开启后，即使 App 关着，Cloudflare Worker 也会按她的天气推送系统通知。
+              在对方手机上打开本站 → 添加到主屏幕 → 在这里开启。开启后，即使 App 关着，Cloudflare Worker 也会按对方的天气推送系统通知。
             </p>
 
             <label class="field">
@@ -192,7 +206,7 @@
           <section v-else-if="tab === 'letters'" class="panel">
             <template v-if="!editingLetter">
               <div class="panel-title">
-                <span>写给她的信</span>
+                <span>写给对方的信</span>
                 <button type="button" class="inline-link" @click="newLetter">写一封</button>
               </div>
 
@@ -236,8 +250,8 @@
                   <option value="cold">气温低于</option>
                   <option value="hot">气温高于</option>
                   <option value="gap">两地温差大于</option>
-                  <option value="rain">她那边下雨</option>
-                  <option value="snow">她那边下雪</option>
+                  <option value="rain">对方那边下雨</option>
+                  <option value="snow">对方那边下雪</option>
                   <option value="date">指定日期</option>
                   <option value="any">任意一天</option>
                 </select>
@@ -261,7 +275,7 @@
                 <textarea
                   v-model="editingLetter.body"
                   rows="8"
-                  placeholder="写长一点也没关系。她拆开的时候，会慢慢看。"
+                  placeholder="写长一点也没关系。对方拆开的时候，会慢慢看。"
                 ></textarea>
               </label>
 
@@ -319,6 +333,45 @@
                 <option :value="120">每 2 小时</option>
               </select>
             </label>
+          </section>
+
+          <!-- 版面 -->
+          <section v-else-if="tab === 'layout'" class="panel">
+            <div class="panel-title">
+              <span>首页顺序</span>
+              <button type="button" class="inline-link" @click="resetLayout">恢复默认</button>
+            </div>
+            <p class="about-text">
+              用上下箭头调整模块顺序。关掉双城地图后，地图这一项会自动跳过。
+            </p>
+
+            <div class="layout-list">
+              <div v-for="(item, index) in draft.layout" :key="item" class="layout-row">
+                <span class="layout-index">{{ String(index + 1).padStart(2, '0') }}</span>
+                <div class="layout-text">
+                  <b>{{ layoutLabels[item] || item }}</b>
+                  <span>{{ layoutHints[item] || '' }}</span>
+                </div>
+                <div class="layout-actions">
+                  <button
+                    type="button"
+                    :disabled="index === 0"
+                    aria-label="上移"
+                    @click="moveLayout(index, -1)"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    :disabled="index === draft.layout.length - 1"
+                    aria-label="下移"
+                    @click="moveLayout(index, 1)"
+                  >
+                    ↓
+                  </button>
+                </div>
+              </div>
+            </div>
           </section>
 
           <!-- 关于 -->
@@ -382,6 +435,7 @@ import {
   sendTestPush
 } from '../lib/push'
 import {
+  DEFAULT_LAYOUT,
   exportSettings,
   importSettings
 } from '../lib/storage'
@@ -402,8 +456,31 @@ const tabs = [
   { key: 'notify', label: '通知' },
   { key: 'letters', label: '信件' },
   { key: 'look', label: '外观' },
+  { key: 'layout', label: '版面' },
   { key: 'about', label: '关于' }
 ]
+
+const pronounOptions = ['她', '他', 'TA']
+
+const layoutLabels = {
+  her: '对方的天气',
+  map: '双城地图',
+  me: '我的天气',
+  care: '今日关心',
+  letters: '写给对方的信',
+  hourly: '未来 24 小时',
+  forecast: '未来几天'
+}
+
+const layoutHints = {
+  her: '先看对方那边的温度',
+  map: '距离、温差和两座城市的位置',
+  me: '你这边用来对比',
+  care: '天气触发的主要关心卡',
+  letters: '提前写好的信',
+  hourly: '她那边接下来一天',
+  forecast: '她那边未来几天'
+}
 
 const themes = [
   { key: 'auto', label: '跟随天气' },
@@ -557,13 +634,31 @@ function resetDraft() {
   loadPhrase()
 }
 
+function moveLayout(index, delta) {
+  const list = [...(draft.value.layout || [])]
+  const target = index + delta
+  if (target < 0 || target >= list.length) return
+  const [item] = list.splice(index, 1)
+  list.splice(target, 0, item)
+  draft.value.layout = list
+}
+
+function resetLayout() {
+  draft.value.layout = [...DEFAULT_LAYOUT]
+}
+
 function loadPhrase() {
   const custom = draft.value.phrases && draft.value.phrases[phraseScene.value]
-  const pool =
-    Array.isArray(custom) && custom.length
-      ? custom
-      : DEFAULT_PHRASES[phraseScene.value] || DEFAULT_PHRASES.daily
-  phraseText.value = pool.join('\n')
+  const isCustom = Array.isArray(custom) && custom.length > 0
+  const pool = isCustom
+    ? custom
+    : DEFAULT_PHRASES[phraseScene.value] || DEFAULT_PHRASES.daily
+  const name = draft.value.her.name || '她'
+  const lines =
+    isCustom || name === '她'
+      ? pool
+      : pool.map((line) => String(line).split('她').join(name))
+  phraseText.value = lines.join('\n')
 }
 
 function commitPhrase() {
@@ -728,6 +823,7 @@ watch(tab, (value) => {
 })
 
 watch(phraseScene, loadPhrase)
+watch(() => draft.value.her.name, loadPhrase)
 
 onBeforeUnmount(() => clearTimeout(deleteTimer))
 </script>
@@ -857,6 +953,93 @@ onBeforeUnmount(() => clearTimeout(deleteTimer))
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 9px;
+}
+.pronoun-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 4px;
+}
+.pronoun-row > span {
+  margin-right: 2px;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #a896b2;
+}
+.pronoun-chip {
+  min-width: 38px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  font-size: 10px;
+  font-weight: 600;
+  color: #8b7c96;
+}
+.pronoun-chip.active {
+  color: #a85d7e;
+  background: linear-gradient(135deg, #f7d7e4, #efe4f8);
+  border-color: transparent;
+}
+.layout-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.layout-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+}
+.layout-index {
+  flex: none;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #c4aecf;
+  font-variant-numeric: tabular-nums;
+}
+.layout-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.layout-text b {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #4f4358;
+}
+.layout-text span {
+  font-size: 9px;
+  color: #a896b2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.layout-actions {
+  flex: none;
+  display: flex;
+  gap: 4px;
+}
+.layout-actions button {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  font-size: 12px;
+  color: #8b7c96;
+}
+.layout-actions button:disabled {
+  opacity: 0.3;
 }
 .field {
   display: flex;

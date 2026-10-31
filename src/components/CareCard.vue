@@ -65,10 +65,10 @@ const label = computed(() => {
 .care-card {
   position: relative;
   display: flex;
-  gap: 12px;
-  margin-top: 12px;
-  padding: 16px 16px 14px;
-  border-radius: 26px;
+  gap: 13px;
+  margin-top: 14px;
+  padding: 17px 18px 15px;
+  border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.96);
   background:
     radial-gradient(220px 160px at 96% 0%, rgba(255, 220, 234, 0.55), rgba(255, 220, 234, 0) 72%),

@@ -16,7 +16,6 @@
           v-for="tile in tiles"
           :key="tile.key"
           class="map-tile"
-          :class="{ labels: tile.key.startsWith('cva') }"
           :src="tile.url"
           :style="tile.style"
           alt=""
@@ -121,13 +120,13 @@ const ready = computed(
 
 const height = computed(() => {
   const w = size.value.w || 360
-  return Math.max(168, Math.min(210, Math.round(w * 0.52)))
+  return Math.max(176, Math.min(196, Math.round(w * 0.46)))
 })
 
 const distance = computed(() => distanceKm(props.meCity, props.herCity))
 const distanceText = computed(() => formatDistance(distance.value))
 const meTitle = computed(() => cityTitle(props.meCity) || '我')
-const herTitle = computed(() => cityTitle(props.herCity) || '她')
+const herTitle = computed(() => cityTitle(props.herCity) || '对方')
 const hasTemps = computed(
   () => Boolean(props.meBundle && props.meBundle.now) && Boolean(props.herBundle && props.herBundle.now)
 )
@@ -227,9 +226,9 @@ onBeforeUnmount(() => {
 <style scoped>
 .map-card {
   position: relative;
-  margin: 12px 0;
+  margin: 14px 0;
   overflow: hidden;
-  border-radius: 26px;
+  border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.95);
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.78), rgba(250, 247, 253, 0.6));
   box-shadow: 0 16px 36px -28px rgba(79, 67, 88, 0.42);
@@ -280,22 +279,20 @@ onBeforeUnmount(() => {
   width: 256px;
   height: 256px;
   max-width: none;
-  filter: saturate(0.3) contrast(0.92) brightness(1.07);
+  filter: saturate(0.16) contrast(0.94) brightness(1.05);
   user-select: none;
   pointer-events: none;
-}
-.map-tile.labels {
-  filter: saturate(0.24) contrast(0.88) brightness(1.04);
-  opacity: 0.6;
 }
 .map-tint {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(251, 248, 253, 0.22), rgba(251, 248, 253, 0.1) 42%, rgba(251, 248, 253, 0.5)),
-    radial-gradient(340px 200px at 50% 40%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 72%);
-  mix-blend-mode: normal;
+    radial-gradient(120% 90% at 50% 0%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 62%),
+    linear-gradient(180deg, rgba(252, 248, 253, 0.12), rgba(248, 246, 252, 0.16) 55%, rgba(255, 255, 255, 0.4));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.42),
+    inset 0 -34px 70px rgba(255, 255, 255, 0.22);
 }
 .map-lines {
   position: absolute;

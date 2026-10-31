@@ -7,9 +7,9 @@
       <span class="welcome-eyebrow">两 座 城 市</span>
       <h1 class="welcome-title">Dear Weather</h1>
       <p class="welcome-lede">
-        先告诉我，你在哪，她在哪。
+        先告诉我，你在哪，对方在哪。
         <br />
-        以后每天先看她那边。
+        以后每天先看对方那边。
       </p>
 
       <div v-if="!keyReady" class="key-warning">
@@ -32,12 +32,12 @@
       <section class="step">
         <span class="step-num">02</span>
         <div class="step-head">
-          <h2>她在哪？</h2>
-          <span>每天先看她那边</span>
+          <h2>对方在哪？</h2>
+          <span>每天先看对方那边</span>
         </div>
         <CityPicker
           v-model="herCity"
-          placeholder="搜索她的城市…"
+          placeholder="搜索对方城市…"
           :settings="settings"
         />
       </section>

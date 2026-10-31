@@ -82,11 +82,6 @@ export function layoutMap(me, her, width, height, options = {}) {
         url: tileUrl({ ...base, layer: 'vec' }),
         style: { left: `${left}px`, top: `${top}px` }
       })
-      tiles.push({
-        key: `cva-${z}-${wrapped}-${y}`,
-        url: tileUrl({ ...base, layer: 'cva' }),
-        style: { left: `${left}px`, top: `${top}px` }
-      })
     }
   }
 

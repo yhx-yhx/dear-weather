@@ -1,18 +1,18 @@
 /* 预设短句库。用户可以在设置里按场景覆盖，一行一句。 */
 
 export const SCENE_META = {
-  rain: { label: '下雨', hint: '她那边下雨时出现' },
-  snow: { label: '下雪', hint: '她那边下雪时出现' },
-  thunder: { label: '雷雨', hint: '她那边打雷时出现' },
+  rain: { label: '下雨', hint: '对方那边下雨时出现' },
+  snow: { label: '下雪', hint: '对方那边下雪时出现' },
+  thunder: { label: '雷雨', hint: '对方那边打雷时出现' },
   cold: { label: '降温 / 冷', hint: '低温、降温时出现' },
-  hot: { label: '高温', hint: '她那边很热时出现' },
+  hot: { label: '高温', hint: '对方那边很热时出现' },
   wind: { label: '大风', hint: '风力较大时出现' },
   fog: { label: '雾 / 霾', hint: '能见度低或空气不好时出现' },
   aqi: { label: '空气', hint: '空气质量较差时出现' },
-  warning: { label: '天气预警', hint: '她那边有预警时出现' },
+  warning: { label: '天气预警', hint: '对方那边有预警时出现' },
   gap: { label: '两地温差', hint: '你们温差较大时出现' },
-  clear: { label: '好天气', hint: '她那边天气很好时出现' },
-  night: { label: '深夜', hint: '她那边很晚时出现' },
+  clear: { label: '好天气', hint: '对方那边天气很好时出现' },
+  night: { label: '深夜', hint: '对方那边很晚时出现' },
   daily: { label: '每日一句', hint: '没有特别天气时轮换' }
 }
 

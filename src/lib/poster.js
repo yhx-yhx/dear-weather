@@ -291,6 +291,8 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
   const ctx = canvas.getContext('2d')
   if (!ctx) return canvas
 
+  const meLabel = (settings.me && settings.me.name) || '我'
+  const herLabel = (settings.her && settings.her.name) || '她'
   const meCity = cityTitle(me.city)
   const herCity = cityTitle(her.city)
   const meTemp = Math.round(num(me.now.temp))
@@ -298,7 +300,7 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
   const gap = Math.abs(meTemp - herTemp)
   const distance = distanceKm(me.city, her.city)
   const care = event || {}
-  const careTitle = care.title || '今天也想知道她那边怎么样'
+  const careTitle = care.title || `今天也想知道${herLabel}那边怎么样`
   const careDetail = care.detail || `${her.now.text || '天气'}，${herTemp}℃。`
   const carePhrase = phrase || '把今天的天气，替我告诉你。'
   const dateText = formatDateCN(new Date(), her.city && her.city.tz)
@@ -347,7 +349,7 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
   ctx.textAlign = 'left'
   ctx.fillStyle = HER
   ctx.font = `600 30px ${FAMILY}`
-  ctx.fillText(`她 · ${herCity}`, 90, 286)
+  ctx.fillText(`${herLabel} · ${herCity}`, 90, 286)
   ctx.fillStyle = INK
   ctx.font = `200 176px ${FAMILY}`
   ctx.fillText(`${herTemp}°`, 82, 456)
@@ -404,7 +406,7 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
   ctx.textAlign = 'left'
   ctx.fillStyle = ME
   ctx.font = `600 28px ${FAMILY}`
-  ctx.fillText(`我 · ${meCity}`, 90, 858)
+  ctx.fillText(`${meLabel} · ${meCity}`, 90, 858)
   ctx.fillStyle = INK
   ctx.font = `200 104px ${FAMILY}`
   ctx.fillText(`${meTemp}°`, 86, 958)

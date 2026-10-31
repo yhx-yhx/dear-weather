@@ -20,7 +20,7 @@
     <div class="bridge-pin pin-her">
       <span class="pin-dot"></span>
       <span class="pin-label">
-        <b>{{ herTitle || '她' }}</b>
+        <b>{{ herTitle || '对方' }}</b>
         <em v-if="herTemp !== null">{{ herTemp }}°</em>
       </span>
     </div>

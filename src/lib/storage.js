@@ -9,12 +9,15 @@ const KEYS = {
   history: `${NS}:history:v1`
 }
 
+export const DEFAULT_LAYOUT = ['her', 'map', 'me', 'care', 'letters', 'hourly', 'forecast']
+
 export const DEFAULT_SETTINGS = {
   version: 1,
   onboarded: false,
   createdAt: null,
   me: { name: '我', city: null },
   her: { name: '她', city: null },
+  layout: [...DEFAULT_LAYOUT],
   thresholds: {
     cold: 10,
     gap: 8,
@@ -65,12 +68,21 @@ function write(key, value) {
 export function mergeSettings(raw) {
   const base = clone(DEFAULT_SETTINGS)
   if (!raw || typeof raw !== 'object') return base
+
+  const layout = Array.isArray(raw.layout)
+    ? raw.layout.filter((key) => DEFAULT_LAYOUT.includes(key))
+    : []
+  DEFAULT_LAYOUT.forEach((key) => {
+    if (!layout.includes(key)) layout.push(key)
+  })
+
   return {
     ...base,
     ...raw,
     me: { ...base.me, ...(raw.me || {}) },
     her: { ...base.her, ...(raw.her || {}) },
     thresholds: { ...base.thresholds, ...(raw.thresholds || {}) },
+    layout,
     phrases: raw.phrases && typeof raw.phrases === 'object' ? { ...raw.phrases } : {},
     letters: Array.isArray(raw.letters) ? raw.letters : []
   }

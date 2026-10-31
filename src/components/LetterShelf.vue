@@ -3,7 +3,7 @@
     <div class="section-head">
       <div class="section-title">
         <span class="section-spark">✉</span>
-        <span>写给她的信</span>
+        <span>写给{{ personName }}的信</span>
         <span class="section-sub">{{ unlockedCount }} 封待拆</span>
       </div>
       <button type="button" class="write-link" @click="$emit('write')">写一封</button>
@@ -53,6 +53,7 @@ import { letterUnlocked, triggerLabel } from '../lib/rules'
 
 const props = defineProps({
   letters: { type: Array, default: () => [] },
+  personName: { type: String, default: '她' },
   me: { type: Object, default: null },
   her: { type: Object, default: null },
   settings: { type: Object, required: true },
@@ -94,9 +95,9 @@ function onOpen(letter) {
 
 <style scoped>
 .letter-card {
-  margin-top: 12px;
-  padding: 15px 0 13px;
-  border-radius: 26px;
+  margin-top: 14px;
+  padding: 16px 0 14px;
+  border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.92);
   background: linear-gradient(158deg, rgba(255, 255, 255, 0.74), rgba(250, 247, 253, 0.54));
   box-shadow: 0 14px 32px -28px rgba(79, 67, 88, 0.4);

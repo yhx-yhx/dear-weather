@@ -13,7 +13,7 @@
             <span class="brand-mark"><BrandMark /></span>
             <span class="brand-text">
               <b>Dear Weather</b>
-              <em>每天先看她那边</em>
+              <em>每天先看{{ herName }}那边</em>
             </span>
           </div>
 
@@ -55,7 +55,7 @@
         <div class="hero-copy">
           <span class="hero-eyebrow">{{ greeting }}，{{ dateText }}</span>
           <h1>
-            先看她那边<span class="hero-dot">。</span>
+            先看{{ herName }}那边<span class="hero-dot">。</span>
           </h1>
           <p class="hero-line">{{ dailyLineText }}</p>
         </div>
@@ -70,65 +70,82 @@
         <button type="button" @click="refresh">再试一次</button>
       </p>
 
-      <CityCard
-        role="her"
-        :person-name="herName"
-        :city="settings.her.city"
-        :bundle="herBundle"
-        :motion="motion"
-      />
+      <template v-for="section in layoutOrder" :key="section">
+        <CityCard
+          v-if="section === 'her'"
+          role="her"
+          :person-name="herName"
+          :city="settings.her.city"
+          :bundle="herBundle"
+          :motion="motion"
+        />
 
-      <TwinMap
-        v-if="settings.showMap !== false"
-        :me-city="settings.me.city"
-        :her-city="settings.her.city"
-        :me-bundle="meBundle"
-        :her-bundle="herBundle"
-        :motion="motion"
-      />
+        <TwinMap
+          v-else-if="section === 'map' && settings.showMap !== false"
+          :me-city="settings.me.city"
+          :her-city="settings.her.city"
+          :me-bundle="meBundle"
+          :her-bundle="herBundle"
+          :motion="motion"
+        />
 
-      <CityCard
-        role="me"
-        :person-name="meName"
-        :city="settings.me.city"
-        :bundle="meBundle"
-        :motion="motion"
-      />
+        <CityCard
+          v-else-if="section === 'me'"
+          role="me"
+          :person-name="meName"
+          :city="settings.me.city"
+          :bundle="meBundle"
+          :motion="motion"
+        />
 
-      <CareCard
-        v-if="primary"
-        :event="primary"
-        :phrase="phraseFor(primary)"
-        :has-letter="Boolean(letterForEvent(primary))"
-        @cycle="cycle(primary)"
-        @share="openPoster(primary)"
-        @letter="openEventLetter(primary)"
-      />
+        <div v-else-if="section === 'care'" class="care-group">
+          <CareCard
+            v-if="primary"
+            :event="primary"
+            :phrase="phraseFor(primary)"
+            :has-letter="Boolean(letterForEvent(primary))"
+            @cycle="cycle(primary)"
+            @share="openPoster(primary)"
+            @letter="openEventLetter(primary)"
+          />
 
-      <CareCard
-        v-if="secondary"
-        variant="soft"
-        :event="secondary"
-        :phrase="phraseFor(secondary)"
-        :has-letter="Boolean(letterForEvent(secondary))"
-        @cycle="cycle(secondary)"
-        @share="openPoster(secondary)"
-        @letter="openEventLetter(secondary)"
-      />
+          <CareCard
+            v-if="secondary"
+            variant="soft"
+            :event="secondary"
+            :phrase="phraseFor(secondary)"
+            :has-letter="Boolean(letterForEvent(secondary))"
+            @cycle="cycle(secondary)"
+            @share="openPoster(secondary)"
+            @letter="openEventLetter(secondary)"
+          />
+        </div>
 
-      <LetterShelf
-        :letters="settings.letters"
-        :me="meBundle"
-        :her="herBundle"
-        :settings="settings"
-        :event="primary"
-        @open="openLetter"
-        @write="writeLetter"
-        @hint="showToast"
-      />
+        <LetterShelf
+          v-else-if="section === 'letters'"
+          :letters="settings.letters"
+          :me="meBundle"
+          :her="herBundle"
+          :settings="settings"
+          :event="primary"
+          :person-name="herName"
+          @open="openLetter"
+          @write="writeLetter"
+          @hint="showToast"
+        />
 
-      <HourlyStrip v-if="herBundle" :bundle="herBundle" :city="settings.her.city" />
-      <ForecastList v-if="herBundle" :bundle="herBundle" :city="settings.her.city" />
+        <HourlyStrip
+          v-else-if="section === 'hourly' && herBundle"
+          :bundle="herBundle"
+          :city="settings.her.city"
+        />
+
+        <ForecastList
+          v-else-if="section === 'forecast' && herBundle"
+          :bundle="herBundle"
+          :city="settings.her.city"
+        />
+      </template>
 
       <footer class="page-foot">
         <div class="foot-line soft">
@@ -146,6 +163,7 @@
       :event="popupEvent"
       :phrase="popupEvent ? phraseFor(popupEvent) : ''"
       :has-letter="Boolean(letterForEvent(popupEvent))"
+      :person-name="herName"
       @close="popupEvent = null"
       @cycle="cycle(popupEvent)"
       @share="openPoster(popupEvent)"
@@ -227,6 +245,7 @@ import {
 import { playChime } from './lib/sound'
 import {
   clearAll,
+  DEFAULT_LAYOUT,
   loadCache,
   loadHistory,
   loadSettings,
@@ -297,6 +316,15 @@ const meName = computed(() => settings.value.me.name || '我')
 const herName = computed(() => settings.value.her.name || '她')
 const motion = computed(() => settings.value.motion !== false)
 
+const layoutOrder = computed(() => {
+  const saved = Array.isArray(settings.value.layout) ? settings.value.layout : []
+  const order = saved.filter((key) => DEFAULT_LAYOUT.includes(key))
+  DEFAULT_LAYOUT.forEach((key) => {
+    if (!order.includes(key)) order.push(key)
+  })
+  return order
+})
+
 const liveBundles = computed(() => {
   if (mockScene.value) {
     return mockBundles(mockScene.value, {
@@ -318,7 +346,7 @@ const herTz = computed(() => (settings.value.her.city && settings.value.her.city
 const greeting = computed(() => greetingFor(hourIn(herTz.value, new Date(nowTick.value))))
 const dateText = computed(() => formatDateCN(new Date(nowTick.value), herTz.value))
 const dailyLineText = computed(() =>
-  dailyLine(new Date(nowTick.value), settings.value.phrases)
+  localize(dailyLine(new Date(nowTick.value), settings.value.phrases))
 )
 
 const theme = computed(() => {
@@ -435,17 +463,24 @@ function refresh() {
 /* 短句与信件                                                          */
 /* ------------------------------------------------------------------ */
 
+function localize(text) {
+  const value = String(text || '')
+  const name = herName.value
+  if (!value || name === '她') return value
+  return value.split('她').join(name)
+}
+
 function phraseFor(event) {
   if (!event) return ''
   const scene = event.phrases || event.scene || 'daily'
   const pool = phrasePool(scene, settings.value.phrases)
   if (!pool.length) return ''
   const index = phraseIndex.value[event.key] || 0
-  const phrase = pool[index % pool.length]
+  let phrase = pool[index % pool.length]
   if (pool.length > 1 && phrase === event.title) {
-    return pool[(index + 1) % pool.length]
+    phrase = pool[(index + 1) % pool.length]
   }
-  return phrase
+  return localize(phrase)
 }
 
 function cycle(event) {
@@ -714,7 +749,7 @@ onBeforeUnmount(() => {
   max-width: 480px;
   min-height: 100dvh;
   margin: 0 auto;
-  padding: calc(18px + env(safe-area-inset-top, 0px)) 16px calc(26px + env(safe-area-inset-bottom, 0px));
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 18px calc(28px + env(safe-area-inset-bottom, 0px));
 }
 
 .hero {
@@ -801,7 +836,7 @@ onBeforeUnmount(() => {
 }
 
 .hero-copy {
-  margin-top: 20px;
+  margin-top: 22px;
   padding: 0 4px;
 }
 

@@ -61,7 +61,7 @@ const props = defineProps({
 const expanded = ref(false)
 const days = computed(() => (props.bundle && props.bundle.daily) || [])
 const visibleDays = computed(() => (expanded.value ? days.value : days.value.slice(0, 4)))
-const cityName = computed(() => cityTitle(props.city) || '她的城市')
+const cityName = computed(() => cityTitle(props.city) || '对方的城市')
 
 const bounds = computed(() => {
   const list = days.value
@@ -89,9 +89,9 @@ function barWidth(day) {
 
 <style scoped>
 .forecast-card {
-  margin-top: 12px;
-  padding: 15px 16px 10px;
-  border-radius: 26px;
+  margin-top: 14px;
+  padding: 16px 17px 11px;
+  border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.92);
   background: linear-gradient(158deg, rgba(255, 255, 255, 0.74), rgba(250, 247, 253, 0.54));
   box-shadow: 0 14px 32px -28px rgba(79, 67, 88, 0.4);

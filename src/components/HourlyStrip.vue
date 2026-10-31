@@ -6,7 +6,6 @@
         <span>未来 24 小时</span>
         <span class="section-sub">{{ cityName }}</span>
       </div>
-      <span class="section-note">她的城市</span>
     </div>
 
     <div class="hourly-scroll">
@@ -33,7 +32,7 @@ const props = defineProps({
   city: { type: Object, default: null }
 })
 
-const cityName = computed(() => cityTitle(props.city) || '她的城市')
+const cityName = computed(() => cityTitle(props.city) || '对方的城市')
 
 const items = computed(() => {
   if (!props.bundle) return []
@@ -65,9 +64,9 @@ const items = computed(() => {
 
 <style scoped>
 .hourly-card {
-  margin-top: 12px;
-  padding: 15px 0 12px;
-  border-radius: 26px;
+  margin-top: 14px;
+  padding: 16px 0 13px;
+  border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.92);
   background: linear-gradient(158deg, rgba(255, 255, 255, 0.74), rgba(250, 247, 253, 0.54));
   box-shadow: 0 14px 32px -28px rgba(79, 67, 88, 0.4);
@@ -97,11 +96,6 @@ const items = computed(() => {
   font-weight: 500;
   color: #b3a2bd;
   letter-spacing: 0.2px;
-}
-.section-note {
-  font-size: 9.5px;
-  color: #c1b2ca;
-  letter-spacing: 0.3px;
 }
 .hourly-scroll {
   display: flex;

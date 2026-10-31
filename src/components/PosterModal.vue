@@ -26,7 +26,7 @@
             分享图片
           </button>
         </div>
-        <p class="poster-hint">微信里可以长按图片保存，再发给她。</p>
+        <p class="poster-hint">微信里可以长按图片保存，再发给 TA。</p>
       </div>
     </div>
   </Transition>
