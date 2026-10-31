@@ -478,8 +478,8 @@ const layoutHints = {
   me: '你这边用来对比',
   care: '天气触发的主要关心卡',
   letters: '提前写好的信',
-  hourly: '她那边接下来一天',
-  forecast: '她那边未来几天'
+  hourly: '对方那边接下来一天',
+  forecast: '对方那边未来几天'
 }
 
 const themes = [

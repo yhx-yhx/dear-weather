@@ -69,9 +69,12 @@ export function mergeSettings(raw) {
   const base = clone(DEFAULT_SETTINGS)
   if (!raw || typeof raw !== 'object') return base
 
-  const layout = Array.isArray(raw.layout)
-    ? raw.layout.filter((key) => DEFAULT_LAYOUT.includes(key))
-    : []
+  const layout = []
+  if (Array.isArray(raw.layout)) {
+    raw.layout.forEach((key) => {
+      if (DEFAULT_LAYOUT.includes(key) && !layout.includes(key)) layout.push(key)
+    })
+  }
   DEFAULT_LAYOUT.forEach((key) => {
     if (!layout.includes(key)) layout.push(key)
   })

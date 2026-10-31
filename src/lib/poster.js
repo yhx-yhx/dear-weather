@@ -345,7 +345,7 @@ export function buildPoster({ me, her, settings, event, phrase, siteUrl }) {
   ctx.font = `400 24px ${FAMILY}`
   ctx.fillText(dateText, W - 86, 178)
 
-  // 她
+  // 对方
   ctx.textAlign = 'left'
   ctx.fillStyle = HER
   ctx.font = `600 30px ${FAMILY}`

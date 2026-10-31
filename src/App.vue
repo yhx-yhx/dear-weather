@@ -318,7 +318,10 @@ const motion = computed(() => settings.value.motion !== false)
 
 const layoutOrder = computed(() => {
   const saved = Array.isArray(settings.value.layout) ? settings.value.layout : []
-  const order = saved.filter((key) => DEFAULT_LAYOUT.includes(key))
+  const order = []
+  saved.forEach((key) => {
+    if (DEFAULT_LAYOUT.includes(key) && !order.includes(key)) order.push(key)
+  })
   DEFAULT_LAYOUT.forEach((key) => {
     if (!order.includes(key)) order.push(key)
   })
